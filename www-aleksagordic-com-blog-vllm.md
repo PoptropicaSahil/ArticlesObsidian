@@ -1,40 +1,16 @@
-[← Back to blog](https://www.aleksagordic.com/blog)
-
-In this post, I'll gradually introduce all of the core system components and advanced features that make up a modern high-throughput LLM inference system. In particular I'll be doing a breakdown of how vLLM [\[1\]](https://www.aleksagordic.com/blog/vllm#ref-1) works.
-
-This post is the first in a series. It starts broad and then layers in detail (following an inverse-pyramid approach) so you can form an accurate high-level mental model of the complete system without drowning in minutiae.
-
-Later posts will dive into specific subsystems.
-
-This post is structured into five parts:
-
-1. [LLM engine & engine core](https://www.aleksagordic.com/blog/vllm#cpt1): fundamentals of vLLM (scheduling, paged attention, continuous batching, etc.)
-2. [Advanced features](https://www.aleksagordic.com/blog/vllm#cpt2): chunked prefill, prefix caching, guided & speculative decoding, disaggregated P/D
-3. [Scaling up](https://www.aleksagordic.com/blog/vllm#cpt3): from single-GPU to multi-GPU execution
-4. [Serving layer](https://www.aleksagordic.com/blog/vllm#cpt4): distributed / concurrent web scaffolding
-5. [Benchmarks and auto-tuning](https://www.aleksagordic.com/blog/vllm#cpt5): measuring latency and throughput
-
-📝Notes
-
-- Analysis is based on [commit 42172ad](https://github.com/vllm-project/vllm/tree/42172ad) (August 9th, 2025).
-- Target audience: anyone curious about how state-of-the-art LLM engines work, as well as those interested in contributing to vLLM, SGLang, etc.
-- I'll focus on the [V1 engine](https://docs.vllm.ai/en/latest/usage/v1_guide.html). I also explored V0 ( [now deprecated](https://github.com/vllm-project/vllm/issues/18571)), which was valuable for understanding how the project evolved, and many concepts still carry over.
-- The first section on LLM Engine / Engine Core might be a bit overwhelming/dry - but the rest of the blog has plenty examples and visuals. :)
 
 ## LLM Engine & Engine Core
 
-The LLM engine is the fundamental building block of vLLM. On its own, it already enables high-throughput inference - but only in an offline setting. You can't serve it to customers over the web yet.
-
+The LLM engine is the fundamental building block of vLLM. On its own, it already enables high-throughput inference - but only in an offline setting. You can't serve it to customers over the web 
 We'll use the following offline inference snippet as our running example (adapted from [basic.py](https://github.com/vllm-project/vllm/blob/main/examples/offline_inference/basic/basic.py)).
 
 ```python
 from vllm import LLM, SamplingParams
 
-prompts = [\
-    "Hello, my name is",\
-    "The president of the United States is",\
+prompts = [
+    "Hello, my name is",
+    "The president of the United States is",
 ]
-
 sampling_params = SamplingParams(temperature=0.8, top_p=0.95)
 
 def main():
