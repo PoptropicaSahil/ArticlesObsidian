@@ -11,13 +11,18 @@
             "id": "7562919f75455f95",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "www-aleksagordic-com-blog-vllm.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "www-aleksagordic-com-blog-vllm"
             }
           }
-        ]
+        ],
+        "stacked": true
       }
     ],
     "direction": "vertical"
@@ -113,6 +118,7 @@
         "state": {
           "type": "backlink",
           "state": {
+            "file": "AlexaGodric_vLLM/www-aleksagordic-com-blog-vllm.md",
             "collapseAll": false,
             "extraContext": false,
             "sortOrder": "alphabetical",
@@ -131,6 +137,7 @@
         "state": {
           "type": "outgoing-link",
           "state": {
+            "file": "AlexaGodric_vLLM/www-aleksagordic-com-blog-vllm.md",
             "linksCollapsed": false,
             "unlinkedCollapsed": true
           },
@@ -144,7 +151,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "Untitled.base",
+            "file": "AlexaGodric_vLLM/www-aleksagordic-com-blog-vllm.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -154,7 +161,7 @@
         }
       }
     ],
-    "currentTab": 0
+    "currentTab": 2
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -164,14 +171,23 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "bases:Create new base": false
+      "bases:Create new base": false,
+      "copilot:Open Copilot Chat": false
     }
   },
-  "active": "c003cc034ccb686b",
+  "active": "7562919f75455f95",
   "lastOpenFiles": [
+    "www-aleksagordic-com-blog-vllm.md",
+    "AlexaGodric/www-aleksagordic-com-blog-vllm.md",
+    "AlexaGodric/Vllm.md",
+    "Untitled.base",
+    "AlexaGodric",
+    "Untitled.canvas",
+    "Untitled.md",
+    "AlexaGodric_vLLM/www-aleksagordic-com-blog-vllm.md",
+    "AlexaGodric_vLLM/Vllm.md",
     "Untitled 1.canvas",
     "AlexaGodric_vLLM",
-    "2026-10-09.md",
-    "Untitled.base"
+    "2026-10-09.md"
   ]
 }
