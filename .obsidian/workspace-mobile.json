@@ -15,7 +15,7 @@
               "state": {
                 "file": "www-aleksagordic-com-blog-vllm.md",
                 "mode": "source",
-                "source": false
+                "source": true
               },
               "icon": "lucide-file",
               "title": "www-aleksagordic-com-blog-vllm"
@@ -171,8 +171,7 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "bases:Create new base": false,
-      "copilot:Open Copilot Chat": false
+      "bases:Create new base": false
     }
   },
   "active": "7562919f75455f95",

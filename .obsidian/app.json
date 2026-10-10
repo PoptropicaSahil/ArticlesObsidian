@@ -20,5 +20,8 @@
     "editor:unindent-list",
     "editor:configure-toolbar"
   ],
-  "readableLineLength": false
+  "readableLineLength": true,
+  "livePreview": false,
+  "defaultViewMode": "preview",
+  "strictLineBreaks": true
 }

@@ -1,8 +1,7 @@
 
 ## LLM Engine & Engine Core
 
-The LLM engine is the fundamental building block of vLLM. On its own, it already enables high-throughput inference - but only in an offline setting. You can't serve it to customers over the web 
-We'll use the following offline inference snippet as our running example (adapted from [basic.py](https://github.com/vllm-project/vllm/blob/main/examples/offline_inference/basic/basic.py)).
+LLM engine enables high-throughput inference - but only in an offline setting. You can't serve it to customers over the web yet
 
 ```python
 from vllm import LLM, SamplingParams
@@ -15,7 +14,6 @@ sampling_params = SamplingParams(temperature=0.8, top_p=0.95)
 
 def main():
     llm = LLM(model="TinyLlama/TinyLlama-1.1B-Chat-v1.0")
-
     outputs = llm.generate(prompts, sampling_params)
 
 if __name__ == "__main__":
@@ -27,77 +25,22 @@ if __name__ == "__main__":
 - VLLM\_USE\_V1="1" # we're using engine V1
 - VLLM\_ENABLE\_V1\_MULTIPROCESSING="0" # we're running in a single process
 
-This configuration is:
+> This configuration is: offline, synchronous, single-GPU, using standard transformer
 
-- offline (no web/distributed system scaffolding)
-- synchronous (all execution happens in a single blocking process)
-- single-GPU (no data/model/pipeline/expert parallelism; DP/TP/PP/EP = 1)
-- using standard transformer [\[2\]](https://www.aleksagordic.com/blog/vllm#ref-2) (supporting hybrid models like Jamba requires a more complex hybrid KV-cache memory allocator)
-
-From here, we'll gradually build up to an online, async, multi-GPU, multi-node inference system - but still serving a standard transformer.
-
-In this example we do two things, we:
-
-1. Instantiate an engine
-2. Call `generate` on it to sample from the given prompts
-
-Let's start analyzing the constructor.
 
 ## LLM Engine constructor
 
-The main components of the engine are:
 
-- vLLM config (contains all of the knobs for configuring model, cache, parallelism, etc.)
-- processor (turns raw inputs → `EngineCoreRequests` via validation, tokenization, and processing)
-- engine core client (in our running example we're using `InprocClient` which is basically == `EngineCore`; we'll gradually build up to `DPLBAsyncMPClient` which allows serving at scale)
-- output processor (converts raw `EngineCoreOutputs` → `RequestOutput` that the user sees)
+The KV-cache manager maintains a `free_block_queue` \- a pool of available KV-cache blocks (often on the order of hundreds of thousands, depending on VRAM size and block size). **During paged attention, the blocks serve as the indexing structure that map tokens to their computed KV cache blocks.**
 
-📝Note:
+![LLM engine constructor](https://www.aleksagordic.com/blog/vllm/engine_constructor.png) 
 
-With the V0 engine being deprecated, class names and details may shift. I'll emphasize the core ideas rather than exact signatures. I'll abstract away some but not all of those details.
+> Block size for a standard transformer layer (non-MLA [\[4\]](https://www.aleksagordic.com/blog/vllm#ref-4)) is computed as follows:
 
-Engine core itself is made up of several sub components:
+2 (key/value) \* `block_size` (default=16) \* `num_kv_heads` \*  `head_size` \* `dtype_num_bytes` (e.g. 2 for bf16)
 
-- Model Executor (drives forward passes on the model, we're currently dealing with `UniProcExecutor` which has a single `Worker` process on a single GPU). We'll gradually build up to `MultiProcExecutor` which supports multiple GPUs
-- Structured Output Manager (used for guided decoding - we'll cover this later)
-- Scheduler (decides which requests go into the next engine step) - it further contains:
-1. policy setting - it can be either **FCFS** (first come first served) or **priority** (higher priority requests are served first)
-2. `waiting` and `running` queues
-3. KV cache manager - the heart of paged attention [\[3\]](https://www.aleksagordic.com/blog/vllm#ref-3)
 
-The KV-cache manager maintains a `free_block_queue` \- a pool of available KV-cache blocks (often on the order of hundreds of thousands, depending on VRAM size and block size). During paged attention, the blocks serve as the indexing structure that map tokens to their computed KV cache blocks.
-
-![LLM engine constructor](https://www.aleksagordic.com/blog/vllm/engine_constructor.png)
-
-Core components described in this section and their relationships
-
-Block size for a standard transformer layer (non-MLA [\[4\]](https://www.aleksagordic.com/blog/vllm#ref-4)) is computed as follows:
-
-2 (key/value) \* `block_size` (default=16) \* `num_kv_heads` \\* `head_size` \\* `dtype_num_bytes` (e.g. 2 for bf16)
-
-During model executor construction, a `Worker` object is created, and three key procedures are executed. (Later, with `MultiProcExecutor`, these same procedures run independently on each worker process across different GPUs.)
-
-1. Init device:
-   - Assign a CUDA device (e.g. "cuda:0") to the worker and check that the model dtype is supported (e.g. bf16)
-   - Verify enough VRAM is available, given the requested `gpu_memory_utilization` (e.g. 0.8 → 80% of total VRAM)
-   - Set up distributed settings (DP / TP / PP / EP, etc.)
-   - Instantiate a `model_runner` (holds the sampler, KV cache, and forward-pass buffers such as `input_ids`, `positions`, etc.)
-   - Instantiate an `InputBatch` object (holds CPU-side forward-pass buffers, block tables for KV-cache indexing, sampling metadata, etc.)
-2. Load model:
-   - Instantiate the model architecture
-   - Load the model weights
-   - Call model.eval() (PyTorch's inference mode)
-   - Optional: call torch.compile() on the model
-3. Initialize KV cache
-   - Get per-layer KV-cache spec. Historically this was always `FullAttentionSpec` (homogeneous transformer), but with hybrid models (sliding window, Transformer/SSM like Jamba) it became more complex (see Jenga [\[5\]](https://www.aleksagordic.com/blog/vllm#ref-5))
-   - Run a dummy/profiling forward pass and take a GPU memory snapshot to compute how many KV cache blocks fit in available VRAM
-   - Allocate, reshape and bind KV cache tensors to attention layers
-   - Prepare attention metadata (e.g. set the backend to FlashAttention) later consumed by kernels during the fwd pass
-   - Unless `--enforce-eager` is provided, for each of warmup batch sizes do a dummy run and capture CUDA graphs. CUDA graphs record the whole sequence of GPU work into a DAG. Later during fwd pass we launch/replay pre-baked graphs and cut on kernel launch overhead and thus improve latency.
-
-I've abstracted away many low-level details here — but these are the core pieces I'll introduce now, since I'll reference them repeatedly in the following sections.
-
-Now that we have the engine initialized let's proceed to the `generate` function.
+> Unless `--enforce-eager` is provided, for each of warmup batch sizes do a dummy run and capture CUDA graphs. **CUDA graphs record the whole sequence of GPU work into a DAG.** Later during fwd pass we launch/replay pre-baked graphs and cut on kernel launch overhead and thus improve latency.
 
 ## Generate function
 
