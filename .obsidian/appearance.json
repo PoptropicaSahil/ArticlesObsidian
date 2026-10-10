@@ -1,1 +1,5 @@
-{}
+{
+  "showViewHeader": true,
+  "showRibbon": false,
+  "floatingNavigation": false
+}
