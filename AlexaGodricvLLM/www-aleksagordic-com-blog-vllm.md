@@ -313,11 +313,11 @@ if __name__ == "__main__":
 
 ## Disaggregated P/D
 
+> *haven’t read this section nicely*
+
 I've already previously hinted at the motivation behind disaggregated P/D (prefill/decode).
 
 Prefill and decode have very different performance profiles (compute-bound vs. memory-bandwidth-bound), so separating their execution is a sensible design. It gives tighter control over latency — both `TTFT` (time-to-first-token) and `ITL` (inter-token latency) — more on this in the [benchmarking](https://www.aleksagordic.com/blog/vllm#cpt5) section.
-
-In practice, we run `N` vLLM prefill instances and `M` vLLM decode instances, autoscaling them based on the live request mix. Prefill workers write KV to a dedicated KV-cache service; decode workers read from it. This isolates long, bursty prefill from steady, latency-sensitive decode.
 
 How does this work in vLLM?
 
