@@ -7,7 +7,6 @@
     "editor:set-heading",
     "editor:toggle-bold",
     "editor:toggle-italics",
-    "editor:toggle-highlight",
     "editor:toggle-code",
     "editor:toggle-blockquote",
     "editor:insert-link",
@@ -15,11 +14,15 @@
     "editor:toggle-numbered-list",
     "editor:toggle-checklist-status",
     "editor:indent-list",
-    "editor:unindent-list"
+    "editor:unindent-list",
+    "editor:cut",
+    "editor:copy",
+    "editor:paste"
   ],
   "readableLineLength": true,
   "livePreview": false,
   "defaultViewMode": "preview",
   "strictLineBreaks": true,
-  "useMarkdownLinks": true
+  "useMarkdownLinks": true,
+  "showInlineTitle": true
 }

@@ -1,5 +1,6 @@
 {
   "showViewHeader": true,
   "showRibbon": false,
-  "floatingNavigation": false
+  "floatingNavigation": false,
+  "baseFontSizeAction": false
 }
