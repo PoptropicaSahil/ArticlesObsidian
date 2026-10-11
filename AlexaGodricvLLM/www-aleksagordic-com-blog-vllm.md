@@ -109,7 +109,7 @@ Forward-pass step itself has two execution modes:
 
 Here is a concrete example that should make continuous batching and paged attention clear:
 
-![[Pasted image 20261010143928.jpg]]
+![](Pasted%20image%2020261011062812.jpg)
 
 > Good goood
 
@@ -308,8 +308,8 @@ if __name__ == "__main__":
 
 > The best way to internalise this is to fire up your debugger and step through the codebase, but this section hopefully gives you a taste for it. This as well:
 
-![[Pasted image 20261010213332.jpg]]
-![[Pasted image 20261010213351.jpg]]
+![](Pasted%20image%2020261011062720.jpg)
+![](Pasted%20image%2020261011062731.jpg)
 
 ## Disaggregated P/D
 

@@ -14,7 +14,7 @@
               "type": "markdown",
               "state": {
                 "file": "AlexaGodricvLLM/www-aleksagordic-com-blog-vllm.md",
-                "mode": "source",
+                "mode": "preview",
                 "source": true
               },
               "icon": "lucide-file",
@@ -174,14 +174,18 @@
       "bases:Create new base": false
     }
   },
-  "active": "c003cc034ccb686b",
+  "active": "7562919f75455f95",
   "lastOpenFiles": [
+    "AlexaGodricvLLM/Pasted image 20261011062535.jpg",
+    "AlexaGodricvLLM/Pasted image 20261011062731.jpg",
+    "AlexaGodricvLLM/Pasted image 20261011062720.jpg",
+    "AlexaGodricvLLM/www-aleksagordic-com-blog-vllm.md",
+    "AlexaGodricvLLM/Pasted image 20261010213332.jpg",
+    "AlexaGodricvLLM/Pasted image 20261011062812.jpg",
     "AlexaGodricTransformer",
     "AlexaGodricvLLM",
     "AlexaGodricvLLM/Pasted image 20261010213351.jpg",
-    "AlexaGodricvLLM/Pasted image 20261010213332.jpg",
     "AlexaGodricvLLM/Pasted image 20261010143928.jpg",
-    "AlexaGodricvLLM/www-aleksagordic-com-blog-vllm.md",
     "AlexaGodric/www-aleksagordic-com-blog-vllm.md",
     "AlexaGodric/Vllm.md",
     "Untitled.base",

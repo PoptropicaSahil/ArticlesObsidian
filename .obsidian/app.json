@@ -20,5 +20,6 @@
   "readableLineLength": true,
   "livePreview": false,
   "defaultViewMode": "preview",
-  "strictLineBreaks": true
+  "strictLineBreaks": true,
+  "useMarkdownLinks": true
 }
