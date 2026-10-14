@@ -4,17 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "4a3e022de09f9569",
+        "id": "c21f362fdc7514f9",
         "type": "tabs",
         "children": [
           {
-            "id": "45eecbccb1debbdb",
+            "id": "5bf16af33d67b304",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Netflix_GenRec/netflixtechblog-com-genrec-towards-llm-native-recommendation.md",
+                "mode": "source",
+                "source": true
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "netflixtechblog-com-genrec-towards-llm-native-recommendation"
             }
           }
         ]
@@ -146,7 +150,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "AlisaLiu_Math/math.md",
+            "file": "Netflix_GenRec/netflixtechblog-com-genrec-towards-llm-native-recommendation.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -169,7 +173,7 @@
       "bases:Create new base": false
     }
   },
-  "active": "45eecbccb1debbdb",
+  "active": "5bf16af33d67b304",
   "lastOpenFiles": [
     "AlisaLiu_Math",
     "notion-math-notes.md",
