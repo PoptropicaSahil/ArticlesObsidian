@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "c21f362fdc7514f9",
+        "id": "438e137f1ee42c2d",
         "type": "tabs",
         "children": [
           {
-            "id": "5bf16af33d67b304",
+            "id": "e913b54652246e4f",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Netflix_GenRec/netflixtechblog-com-genrec-towards-llm-native-recommendation.md",
-                "mode": "source",
+                "file": "Netflix_FoundationPersonalisation/netflixtechblog-com-integrating-netflixs-foundation-model-in.md",
+                "mode": "preview",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "netflixtechblog-com-genrec-towards-llm-native-recommendation"
+              "title": "netflixtechblog-com-integrating-netflixs-foundation-model-in"
             }
           }
         ]
@@ -150,7 +150,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "Netflix_GenRec/netflixtechblog-com-genrec-towards-llm-native-recommendation.md",
+            "file": "Netflix_FoundationPersonalisation/netflixtechblog-com-integrating-netflixs-foundation-model-in.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -173,13 +173,17 @@
       "bases:Create new base": false
     }
   },
-  "active": "5bf16af33d67b304",
+  "active": "e913b54652246e4f",
   "lastOpenFiles": [
+    "Netflix_FoundationPersonalisation/netflixtechblog-com-integrating-netflixs-foundation-model-in.md",
+    "Netflix_FoundationPersonalisation",
+    "Netflix_GenRec/Pasted image 20261015170050.jpg",
+    "Untitled.md",
+    "Netflix_GenRec/netflixtechblog-com-genrec-towards-llm-native-recommendation.md",
     "AlisaLiu_Math",
     "notion-math-notes.md",
     "AlisaLiu_Math/math.md",
     "alisawuffles-notion-site-math-notes.md",
-    "Untitled.md",
     "Where teams and agents work together.md",
     "Where teams and agents work together 1.md",
     "AleksaGordic_ModernTransformer/www-aleksagordic-com-blog-transformer.md",
@@ -195,7 +199,6 @@
     "README.md",
     "AlexaGodricvLLM/Pasted image 20261011062535.jpg",
     "AlexaGodricvLLM/Pasted image 20261010213332.jpg",
-    "AlexaGodricvLLM/Pasted image 20261011062812.jpg",
     "AlexaGodricTransformer",
     "AlexaGodricvLLM",
     "AlexaGodric/www-aleksagordic-com-blog-vllm.md",

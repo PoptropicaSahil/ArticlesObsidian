@@ -131,11 +131,13 @@ The example’s ranking loss is then scaled by this weight: high‑value engagem
 
 GenRec’s architecture closely follows our foundational LLM: a **decoder‑only Transformer** trained with next‑token‑prediction style objectives, augmented with a **catalog‑aware ranking head** that scores only Netflix in-catalog items. The scoring pipeline works as follows:
 
-1. **Verbalization:** A verbalizer _V_ serializes user history _H_, context _𝜏_ , and relevant item metadata into a single text sequence _x_.
-2. **Pooled representation:** **The LLM processes _x,_ and we extract a pooled hidden state _h_ that summarizes the user’s current preferences and context.**
-3. **Catalog‑aware scoring:** Each catalog item _i_ has a learned embedding _eᵢ_. A scoring head _ϕ_ combines _h_ and _eᵢ_(e.g., via dot product or small MLP) to produce a score s _ᵢ_. Applying a softmax over scores yields a probability distribution which we convert into a ranking _π_.
+1. **Verbalization:** A verbalizer _V_ serializes user history _H_, context _𝜏_ , and relevant item metadata into a single text sequence _x_
+2. **Pooled representation:** **The LLM processes _x,_ and we extract a pooled hidden state _h_ that summarizes the user’s current preferences and context**
+3. **Catalog‑aware scoring:** Each catalog item _i_ has a learned embedding _eᵢ_. A scoring head _ϕ_ combines _h_ and _eᵢ_(e.g., via dot product or small MLP) to produce a score $s_i$. Applying a softmax over scores yields a probability distribution which we convert into a ranking _π_
 
-All parameters — the backbone, scoring head, and item embeddings — are trained jointly. For very large catalogs, we can use sampled softmax or candidate sets for efficient training and inference. This architecture constrains recommendations to the Netflix catalog while supporting efficient scoring over large candidate sets.
+> User history + context —> LLM in prefill mode —> get one pooled embedding for the whole input —> compare with each catalog items learnt embedding —> “similar” embeddings should be close
+
+All parameters — the backbone, scoring head, and item embeddings — **are trained jointly.** For very large catalogs, we can use *sampled softmax* or *candidate sets* for efficient training and inference
 
 ### Serving and Cost Optimization
 
@@ -148,21 +150,19 @@ GenRec is served on [Netflix’s internal LLM stack](https://netflixtechblog.com
 
 ## Offline and Online Experiments
 
-We evaluated GenRec against a **mature production ranker** that has been tuned over many years. The baseline model relies on thousands of engineered dense and embedding features, as well as custom architectures for modeling feature interactions and sequences. We assessed performance using both offline evaluation metrics and a large‑scale online A/B test.
+We evaluated GenRec against a **mature production ranker** (tuned over many years, thousands of engineered dense and embedding features)
 
 ### GenRec vs Production Baseline
 
-**Offline**, GenRec outperformed the production ranker on ranking metrics despite using far fewer input signals and labeled examples. With roughly **40× fewer Phase‑2 labeled training examples**, GenRec achieved about **+1.6%** **improvement** in Mean Reciprocal Rank (MRR). As we increased Phase‑2 training data and enriched the input signals, GenRec’s offline metrics continued to improve.
+**Offline**. With roughly **40× fewer Phase‑2 labeled training examples**, GenRec achieved about **+1.6%** **improvement** in Mean Reciprocal Rank (MRR)
 
-**Online**, we ran a large A/B test on batch‑compute recommendation surfaces, covering **~10% of Netflix traffic** over ~4 weeks. In this low‑data, low‑signal configuration, GenRec delivered **statistically significant gains** over the production baseline on both short‑term and long‑term online metrics (Figure 3).
+**Online**, large A/B test covering **~10% of Netflix traffic** over ~4 weeks. GenRec delivered **statistically significant gains** over the production baseline on both short‑term and long‑term online metrics (Figure 3).
 
-These results indicate that a properly post‑trained and aligned LLM‑backed ranker can be a strong alternative to traditional recommendation models, with substantial headroom as we further scale data and input signals.
+![](Pasted%20image%2020261015170050.jpg)
 
-Press enter or click to view image in full size
+Figure 3
 
-![](https://miro.medium.com/v2/resize:fit:700/1*Z8IJ48SEZuHf3rViZXKZsA.png)
-
-Figure 3: Online metrics of GenRec vs. production model. GenRec achieves statistically significant improvements on both short-term and long-term online metrics.
+> *0.006%* increase in long term metric ;)
 
 ### Data, Model, and Phase Contributions
 
@@ -172,8 +172,6 @@ We ran ablations to understand where GenRec’s gains come from.
 
 - **Data scaling:** For both ~1B and ~10B parameter backbones, offline MRR improves as we increase Phase‑2 post‑training data. Larger models reach higher absolute MRR but follow a similar scaling curve (see Figure 4).
 - **Model scaling:** Under a fixed training budget, we post‑trained GenRec variants from ~1B to ~10B parameters. Within this budget, larger backbones consistently achieved higher offline MRR than smaller ones.
-
-Press enter or click to view image in full size
 
 ![](https://miro.medium.com/v2/resize:fit:700/1*1EcVs9E3h7XFfypn7nBX7g.png)
 
@@ -201,8 +199,6 @@ Context length drives both **quality** and **cost**: longer verbalizations expos
 3. **Optimize verbosity:** for the retained events, test different levels of details and simplified wordings, measuring MRR each time.
 
 In our experiments, we can reduce the context tokens to roughly **one-third** of the original budget with **negligible degradation** in offline ranking metrics. Since serving cost is approximately proportional to context length, we observed a similar reduction in serving cost.
-
-Press enter or click to view image in full size
 
 ![](https://miro.medium.com/v2/resize:fit:700/1*W_u0qbjvFHQ7z9deBnyPsA.png)
 
