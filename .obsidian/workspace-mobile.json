@@ -4,31 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "54762133edd9083c",
+        "id": "e19f7cd09c1902af",
         "type": "tabs",
         "children": [
           {
-            "id": "9c824a12b9c9284b",
+            "id": "b17099ea5a7c7844",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "SumanDebnath_LoraFirstPrinciples/debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning.md",
-                "mode": "preview",
-                "source": true,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
-                }
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning"
+              "title": "New tab"
             }
           }
         ]
@@ -160,7 +146,6 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "SumanDebnath_LoraFirstPrinciples/debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -184,9 +169,10 @@
       "copilot:Open Copilot Chat": false
     }
   },
-  "active": "9c824a12b9c9284b",
+  "active": "b17099ea5a7c7844",
   "lastOpenFiles": [
     "Pasted image 20261018101524.png",
+    "SumanDebnath_LoraFirstPrinciples/debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning.md",
     "copilot/copilot-conversations/Go_over_every_math_notation_in_this_doc_and_inplace@20261018_100147.md",
     "copilot/memory/Recent Conversations.md",
     "copilot/memory",
@@ -198,7 +184,6 @@
     "Untitled.md",
     "AGENTS.md",
     "CLAUDE.md",
-    "SumanDebnath_LoraFirstPrinciples/debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning.md",
     "Clippings/Fine-Tuning from First Principles LoRA, QLoRA, and Serverless Fine-Tuning on Crusoe.md",
     "Clippings",
     "SumanDebnath_LoraFirstPrinciples/Quantisation Sub Blog.md",
@@ -225,7 +210,6 @@
     "AleksaGordic_ModernTransformer/Pasted image 20261011174145.jpg",
     "AleksaGordic_ModernTransformer/Pasted image 20261011161611.jpg",
     "AleksaGordic_ModernTransformer/Pasted image 20261011143637.jpg",
-    "AleksaGordic_ModernTransformer/Pasted image 20261011134453.jpg",
     "AleksaGodric_vLLM/www-aleksagordic-com-blog-vllm.md",
     "AleksaGordic_ModernTransformer",
     "AlexaGodric/www-aleksagordic-com-blog-vllm.md",
