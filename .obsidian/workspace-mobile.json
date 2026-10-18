@@ -4,21 +4,31 @@
     "type": "split",
     "children": [
       {
-        "id": "438e137f1ee42c2d",
+        "id": "54762133edd9083c",
         "type": "tabs",
         "children": [
           {
-            "id": "e913b54652246e4f",
+            "id": "9c824a12b9c9284b",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Netflix_FoundationPersonalisation/netflixtechblog-com-integrating-netflixs-foundation-model-in.md",
+                "file": "SumanDebnath_LoraFirstPrinciples/debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning.md",
                 "mode": "preview",
-                "source": true
+                "source": true,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
               },
               "icon": "lucide-file",
-              "title": "netflixtechblog-com-integrating-netflixs-foundation-model-in"
+              "title": "debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning"
             }
           }
         ]
@@ -150,7 +160,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "Netflix_FoundationPersonalisation/netflixtechblog-com-integrating-netflixs-foundation-model-in.md",
+            "file": "SumanDebnath_LoraFirstPrinciples/debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -170,15 +180,40 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "bases:Create new base": false
+      "bases:Create new base": false,
+      "copilot:Open Copilot Chat": false
     }
   },
-  "active": "e913b54652246e4f",
+  "active": "9c824a12b9c9284b",
   "lastOpenFiles": [
+    "Pasted image 20261018101524.png",
+    "copilot/copilot-conversations/Go_over_every_math_notation_in_this_doc_and_inplace@20261018_100147.md",
+    "copilot/memory/Recent Conversations.md",
+    "copilot/memory",
+    "copilot/copilot-conversations/Untitled_Chat@20261018_095803.md",
+    "copilot/copilot-conversations/convert_to_later_that_obsidian_can_render@20261018_095104.md",
+    "copilot/copilot-conversations",
+    "copilot",
+    "README.md",
+    "Untitled.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "SumanDebnath_LoraFirstPrinciples/debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning.md",
+    "Clippings/Fine-Tuning from First Principles LoRA, QLoRA, and Serverless Fine-Tuning on Crusoe.md",
+    "Clippings",
+    "SumanDebnath_LoraFirstPrinciples/Quantisation Sub Blog.md",
+    "SumanDebnath_DistributedTraining/debnsuma-github-io-my-blog-posts-distributed-training-from-s.md",
+    "Quantisation-sub-blog",
+    "SumanDebnath_LoraFirstPrinciples/Pasted image 20261017074945.png",
+    "SumanDebnath_LoraFirstPrinciples/Pasted image 20261017071108.png",
+    "SumanDebnath_LoraFirstPrinciples/Pasted image 20261017064718.png",
+    "Pasted image 20261017064628.png",
+    "IMG_0022.jpeg",
+    "SumanDebnath_DistributedTraining",
     "Netflix_FoundationPersonalisation/netflixtechblog-com-integrating-netflixs-foundation-model-in.md",
+    "SumanDebnath_LoraFirstPrinciples",
     "Netflix_FoundationPersonalisation",
     "Netflix_GenRec/Pasted image 20261015170050.jpg",
-    "Untitled.md",
     "Netflix_GenRec/netflixtechblog-com-genrec-towards-llm-native-recommendation.md",
     "AlisaLiu_Math",
     "notion-math-notes.md",
@@ -191,25 +226,13 @@
     "AleksaGordic_ModernTransformer/Pasted image 20261011161611.jpg",
     "AleksaGordic_ModernTransformer/Pasted image 20261011143637.jpg",
     "AleksaGordic_ModernTransformer/Pasted image 20261011134453.jpg",
-    "AleksaGordic_ModernTransformer/Pasted image 20261011074441.jpg",
-    "AlexaGodricvLLM/Pasted image 20261011062720.jpg",
-    "AlexaGodricvLLM/Pasted image 20261011062731.jpg",
-    "AlexaGodricvLLM/www-aleksagordic-com-blog-vllm.md",
+    "AleksaGodric_vLLM/www-aleksagordic-com-blog-vllm.md",
     "AleksaGordic_ModernTransformer",
-    "README.md",
-    "AlexaGodricvLLM/Pasted image 20261011062535.jpg",
-    "AlexaGodricvLLM/Pasted image 20261010213332.jpg",
-    "AlexaGodricTransformer",
-    "AlexaGodricvLLM",
     "AlexaGodric/www-aleksagordic-com-blog-vllm.md",
     "AlexaGodric/Vllm.md",
-    "Untitled.base",
-    "AlexaGodric",
     "Untitled.canvas",
-    "AlexaGodric_vLLM/www-aleksagordic-com-blog-vllm.md",
+    "AleksaGodric_vLLM/www-aleksagordic-com-blog-vllm.md",
     "AlexaGodric_vLLM/Vllm.md",
-    "Untitled 1.canvas",
-    "AlexaGodric_vLLM",
-    "2026-10-09.md"
+    "Untitled 1.canvas"
   ]
 }

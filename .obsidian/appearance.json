@@ -1,6 +1,7 @@
 {
   "showViewHeader": true,
-  "showRibbon": false,
-  "floatingNavigation": false,
-  "baseFontSizeAction": false
+  "showRibbon": true,
+  "floatingNavigation": true,
+  "baseFontSizeAction": false,
+  "theme": "obsidian"
 }
