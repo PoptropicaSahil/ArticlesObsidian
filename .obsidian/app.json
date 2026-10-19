@@ -15,12 +15,14 @@
     "editor:copy",
     "editor:paste",
     "editor:indent-list",
-    "editor:unindent-list"
+    "editor:unindent-list",
+    "editor:toggle-numbered-list"
   ],
   "readableLineLength": true,
   "livePreview": false,
   "defaultViewMode": "preview",
   "strictLineBreaks": true,
   "useMarkdownLinks": true,
-  "showInlineTitle": true
+  "showInlineTitle": true,
+  "showUnsupportedFiles": true
 }

@@ -1,0 +1,1 @@
+https://medium.com/netflix-techblog/integrating-netflixs-foundation-model-into-personalization-applications-cf176b5860eb?sharedUserId=ed19b048

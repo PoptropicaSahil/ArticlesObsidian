@@ -1,0 +1,1 @@
+https://netflixtechblog.com/genrec-towards-llm-native-recommendation-at-netflix-f20be6f643e3?sharedUserId=ed19b048
