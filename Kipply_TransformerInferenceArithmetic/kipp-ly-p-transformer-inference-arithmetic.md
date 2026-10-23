@@ -120,25 +120,34 @@ This is not the whole story (given overheads and [tradeoffs](https://twitter.com
 
 ### capacity
 
-We have a solid idea of the two things we store in our GPUs — kv cache and weights. GPU capacity does come into play for transformer inferencing performance and we have all the understanding we need to evaluate that now!
+> Nvidia A100 GPUs - 40GB RAM
 
-Nvidia A100 GPUs (which are generally speaking, the best GPUs we can get for inference) have a standard of 40GB of capacity. There are ones with 80GB and higher memory bandwidth (2e12 instead of 1.5e12) but they aren't available with any large [cloud](https://web.archive.org/web/20220316203021/https://cloud.google.com/compute/docs/gpus) [providers](https://docs.aws.amazon.com/dlami/latest/devguide/gpu.html) yet which means they aren't real to me!
+Size of the weights for a 52B model (16 bits )
 
-Given the parameter count, we can multiply by two to get bytes. So to calculate the size of the weights for a 52B model
+$52e12⋅2=104e12$ bytes≈104GB
 
-52e12⋅2=104e12bytes≈104GB
+Need at least three GPUs just load weights. That leaves 120−104=16GB left for our kv cache. Is that enough? For *kv cache memory* ***per token***
 
-Oh no! This doesn't fit in one GPU! We'd need at least three GPUs just to have all the weights loaded in (will discuss how to do that sharding later). That leaves us 120−104=16GB left for our kv cache. Is that enough? Back to our equation for kv cache memory per token, again with a 52B model;
+| |Formula|Measures|
+|---|---|---|
+|Compute (earlier)|2·2·n_layers·d_model²|**flops** to run the k, v matmuls for one token|
+|Storage (now)|2·2·n_layers·n_heads·d_head|**bytes** of k, v we keep per token|
 
-2⋅nlayers⋅nheads⋅dhead⋅24⋅nlayers⋅nheads⋅dhead=4⋅64⋅8192=2,097,152bytes≈0.002GB
+2⋅2⋅n_layers⋅n_heads⋅d_head = 4⋅64⋅8192 = 2,097,152 bytes per token ≈ **0.002GB** per token
 
-And then we'd do 16/0.002≈8000 tokens can fit into our kv cache with this GPU set up, or that we could do up to a batch size 4 where each request has up to 2048 tokens (and higher sizes for less tokens).
+- (16 GB / 0.002 GB per token) ≈ 8000 tokens can fit into our kv cache with this GPU set up, **or,** <br>
+- up to a batch size 4 where each request has up to 2048 tokens, **or,** <br>
+- higher batch size with lesser tokens
 
-This sucks because we would like to be able to do higher batch sizes, but are capacity limited! Higher batch sizes are more efficient in terms of how much GPU time it takes to process the same request. On the other hand, at batch sizes this low we're bound to be memory bound, and should forego the kv cache and just pay the flops cost instead.
+> This sucks - only batch size of 4 otherwise memory for kv cache  isn’t sufficient
+> 
+> Higher batch sizes are more efficient because GPU can execute batches in parallel 
+> 
+> At batch sizes this low we're memory bound, and should forego the kv cache and just pay the flops cost instead (!!)
 
-For four GPUs, we'd get 56/0.002≈23000. We definitely want to go for the four GPUs since we'll want to be able to do higher batch sizes, and it's silly to to divide powers of two over three GPUs. But it's not just batch size! If we have high volume, then we'd have multiple instances of our models. We approximately want each instance to be able to do as large as a batch size as possible, as we pay the cost of storing the weights anyway.
+For four GPUs (4 • 40 GB = 160 GB), we'd get (160-104) / 0.002 ≈ 23000 tokens. Allows higher batch sizes, **and it's silly to divide powers of two over three GPUs**. But it's not just batch size! **If we have high volume, then we'd have multiple instances of our models.** We approximately want each instance to be able to do as large as a batch size as possible, as we pay the cost of storing the weights anyway.
 
-There's some extra space used by intermediate calculation steps, but they're negligible.
+> There's some extra space used by intermediate calculation steps, but they're negligible.
 
 ### model parallelism
 
