@@ -4,17 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "55936788277a8ab8",
+        "id": "f221ecb3b87d2450",
         "type": "tabs",
         "children": [
           {
-            "id": "8916e0120691de0e",
+            "id": "14f85ed70831eaf6",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
                 "file": "Kipply_TransformerInferenceArithmetic/kipp-ly-p-transformer-inference-arithmetic.md",
-                "mode": "preview",
+                "mode": "source",
                 "source": true,
                 "backlinks": false
               },
@@ -167,17 +167,20 @@
     "hiddenItems": {
       "switcher:Open quick switcher": false,
       "graph:Open graph view": false,
-      "canvas:Create new canvas": false,
-      "daily-notes:Open today's daily note": false,
-      "templates:Insert template": false,
+      "canvas:Create new canvas": true,
+      "daily-notes:Open today's daily note": true,
+      "templates:Insert template": true,
       "command-palette:Open command palette": false,
-      "obsidian-excalidraw-plugin:New drawing": false
+      "obsidian-excalidraw-plugin:New drawing": true
     }
   },
-  "active": "8916e0120691de0e",
+  "active": "14f85ed70831eaf6",
   "lastOpenFiles": [
-    "Source.md",
+    "Kipply_TransformerInferenceArithmetic/Pasted image 20261023054258.jpg",
+    "Kipply_TransformerInferenceArithmetic/Pasted image 20261022152930.png",
+    "2026-10-22.md",
     "Kipply_TransformerInferenceArithmetic/kipp-ly-p-transformer-inference-arithmetic.md",
+    "Source.md",
     "sources to read.md",
     "Kipply_TransformerInferenceArithmetic",
     "SumanDebnath_DistributedTraining/source.md",
@@ -212,7 +215,6 @@
     "SumanDebnath_LoraFirstPrinciples/Pasted image 20261017071108.png",
     "Pasted image 20261018101524.png",
     "copilot/copilot-conversations/Go_over_every_math_notation_in_this_doc_and_inplace@20261018_100147.md",
-    "copilot/copilot-conversations/Untitled_Chat@20261018_095803.md",
     "SumanDebnath_LoraFirstPrinciples/Pasted image 20261017074945.png",
     "SumanDebnath_LoraFirstPrinciples/Pasted image 20261017064718.png",
     "Pasted image 20261017064628.png",
@@ -220,7 +222,6 @@
     "Netflix_GenRec/Pasted image 20261015170050.jpg",
     "AleksaGordic_ModernTransformer/Pasted image 20261011174145.jpg",
     "AleksaGordic_ModernTransformer/Pasted image 20261011161611.jpg",
-    "AleksaGordic_ModernTransformer/Pasted image 20261011143637.jpg",
     "Untitled.canvas",
     "Untitled 1.canvas"
   ]

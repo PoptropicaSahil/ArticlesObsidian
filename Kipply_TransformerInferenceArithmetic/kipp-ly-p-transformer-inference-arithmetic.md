@@ -1,64 +1,122 @@
 
-
 # Transformer Inference Arithmetic
 
-
-
-This article presents detailed few-principles reasoning about large language model inference performance, with no experiments or difficult math. The amount of understanding that can be acquired this way is really impressive and practical! A very simple model of latency for inference turns out to be a good fit for emprical results. It's helped me make better predictions and form better explanations about transformer inference.
-
-
+> This article presents detailed few-principles reasoning about large language model inference performance, *with no experiments or difficult math*. The amount of understanding that can be acquired this way is really impressive and practical! OHO
 
 ### kv cache
 
-For sampling, transformer inference consists of processing a provided prompt/context (which can happen in parallel), and then sampling additional tokens one by one (this is where the autoregressiveness surfaces). In the sampling, the transformer performs self-attention, which requires the kv values for each item currently in the sequence (whether it was prompt/context or a generated token). These vectors are provided a matrix known as the kv cache, aka past cache (the open source GPT-2 implementation called it `past`). The past cache would be shaped like `[batch, 2, num_heads, seq_len, features]`.
+> GPT-2 implementation called kv cache `past`
+
+During self-attention, we require the kv values for each item currently in the sequence (prompt or a generated token). These vectors are provided a matrix known as the kv cache. Shaped `[batch, 2, num_heads, seq_len, features]`.
 
 [![kvdiagram.png](https://substackcdn.com/image/fetch/$s_!F_vM!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa4af1b55-1f13-4e19-8821-1813ab1f84af_1256x603.png)](https://substackcdn.com/image/fetch/$s_!F_vM!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa4af1b55-1f13-4e19-8821-1813ab1f84af_1256x603.png)
 
-The purpose of this is to avoid recalculations of those vectors every time we sample a token. With the computed k,v values, we can save quite a bit of computation at the cost of some storage. Per token, the number of bytes we store is
+With the computed k,v values, we can save computation *at the cost of some storage*. **PER TOKEN**, the number of **BYTES** we store is
 
-2⋅2⋅nlayers⋅nheads⋅dhead
+$2⋅2⋅n_{layers}⋅n_{heads}⋅d_{head}$
 
-The first factor of 2 is to account for the two vectors `k` and `v`. We store that per each layer, and each of those values is a `n_heads x d_head` matrix. Then multiply by 2 again for the number of bytes (we'll assume 16-bit formats throughout the post).
+- 2 —> two vectors `k` and `v`
+- 2 —> assuming 16 bits = 2 bytes
+- Per each layer, and each of those values is a `n_heads x d_head` matrix
 
-The weights that we multiply by the token embeddings are
+![](Pasted%20image%2020261022152930.png)
 
-Wk,Wv∈Rdmodel×dmodel
+Shapes:
 
-and then each token embedding is
+$W_k,W_v ∈ R^{d_{model}×d_{model}}$
 
-te∈R1×dmodel
+$t_e ∈ R^{1×d_{model}}$ 
 
-So then the [flops](https://en.wikipedia.org/wiki/FLOPS) to compute k and v for all our layers is
+> **How many flops in a matmul?** 
+> The computation for a matrix-vector multiplication is $2mn$ for $A∈R^{m×n},b∈R^{n}$. A matrix-matrix is $2mnp$ for $A∈R^{m×n},B∈R^{n×p}$. The $mn$ factor makes a lot of sense, and the two comes from the fact that matmuls are composed of multiply(1)-add(2) operations. More in these [lecture notes](https://www.stat.cmu.edu/~ryantibs/convexopt-F18/scribes/Lecture_19.pdf)
+> 
+> **REMEMBER $2mnp$**
 
-2⋅2⋅nlayers⋅dmodel2
+So then the [flops](https://en.wikipedia.org/wiki/FLOPS) to compute $k$ and $v$ for all our layers is
 
-We multiply tₑ by Wₖ, which takes 2⋅d\_model² flops. We have another factor of 2 as we do that twice, once each for k and v and then repeat for nlayers.
+$2⋅2⋅n_{layers}⋅{d_{model}}^2$
 
-> **How many flops in a matmul?**
+> Matrix vector is $2mn$ —> $t_e$ with ${d_{model}×d_{model}}$. Then 2 for $k$, $v$ and repeat for each $n_{layers}$ 
 
-> The computation for a matrix-vector multiplication is 2mn for A∈Rm×n,b∈Rn. A matrix-matrix is 2mnp for A∈Rᵐ×ⁿ,B∈Rⁿˣᵖ. The mn factor makes a lot of sense, and the two comes from the fact that a matmuls are composed of multiply(1)-add(2) operations. More in these [lecture notes](https://www.stat.cmu.edu/~ryantibs/convexopt-F18/scribes/Lecture_19.pdf).
 
-This means for a 52B parameter model (taking [Anthropic's](https://arxiv.org/pdf/2112.00861.pdf), where dmodel=8192 and nlayers=64). The flops are
+This means for a 52B parameter model (taking [Anthropic's](https://arxiv.org/pdf/2112.00861.pdf), where dmodel=8192 and nlayers=64). The flops are about $10^{10}$
 
-Say we have an [A100 GPU](https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf), which does 312e12 flops per second and 1.5e12 bytes per second of memory bandwidth. The following are numbers for just the kv weights and computations.
+Say we have an [A100 GPU](https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf), which does 312e12 flops per second and 1.5e12 bytes per second of memory bandwidth. Computing $k$, $v$  for $N$ tokens.
 
-memory=2⋅2⋅nlayers⋅dmodel2÷1.5e12compute=2⋅2⋅nlayers⋅dmodel2÷312e12
+$\text{memory time}_{kv} =2⋅2⋅n_{layers}⋅d_{model}^{2}÷1.5e12$
+
+$\text{compute time}_{kv} =2⋅2⋅N⋅n_{layers}⋅d_{model}^{2}÷312e12$ 
+
+Ratio for this hardware specification $\frac{\text{compute}}{\text{memory}} = N/208$  tokens, equal at $N=208$
 
 > **Flops vs Memory Boundedness**
 
-> Flops vs memory boundedness is something we deal with a lot for transformer inference, but [also in deep learning optimisation in general](https://horace.io/brrr_intro.html). To do the computations we do, we need to load weights which costs [memory bandwidth](https://en.wikipedia.org/wiki/Memory_bandwidth). We assume (correctly, this has been very well optimised) that we can start the computations while we load the weights. Flop bound would then mean that there is time when nothing is being passed through memory, and memory bound would mean that no floperations are occurring. Nvidia uses the term [math bandwidth](https://docs.nvidia.com/deeplearning/performance/dl-performance-gpu-background/index.html#gpu-arch) which I find really cute. Technically, this delineation exist per kernel but can be abstracted to exist for groups of operations.
+> Flops vs memory boundedness is something we deal with a lot for transformer inference, but [also in deep learning optimisation in general](https://horace.io/brrr_intro.html). We need to load weights which costs [memory bandwidth](https://en.wikipedia.org/wiki/Memory_bandwidth). We assume (correctly, this has been very well optimised) that *we can start the computations while we load the weights*. Flop bound would then mean that there is time when nothing is being passed through memory, and memory bound would mean that no flop operations are occurring. Nvidia uses the term [math bandwidth](https://docs.nvidia.com/deeplearning/performance/dl-performance-gpu-background/index.html#gpu-arch) which I find really cute. Technically, this delineation exist per kernel but can be abstracted to exist for groups of operations.
 
-None of the model architecture matters anymore — we get a distinct ratio here of 208 given this hardware specification. This means that if we're going to compute kv for one token, it'll take the same amount of time to compute for up to 208 tokens! Anything below, we're memory bandwidth bound. Above, flops bound. If we used the rest of our weights to do a full forwards pass (run the rest of the transformer) on our context, it's also 208 (both the numerator and denominator get a factor of 6 added). This will be reasoned thoroughly in future sections. The intersection of the below diagram is at 208, though in reality the memory line does have a slight slope due to memory cost of intermediate calculations (discussed in the last section).
+> *None of the model architecture matters anymore!*
 
-[![roofline.png](https://substackcdn.com/image/fetch/$s_!8W9t!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fcb415e8f-5343-423d-a75e-d543e1f943e1_956x580.png)](https://substackcdn.com/image/fetch/$s_!8W9t!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fcb415e8f-5343-423d-a75e-d543e1f943e1_956x580.png)
+Same amount of time to compute one token as to compute up to 208 tokens! Anything below, we're memory bandwidth bound. Above, flops bound. 
 
-For a 52B model full forwards pass, that's 12⋅2⋅n\_layers⋅d\_model²/1.5e12≈69 milliseconds for up to 208 tokens (in practice, we'd use four GPUs in parallel so it would actually be ~17 milliseconds, more in following sections). If we had 416 (double) tokens in the context, then it would take twice as long, and 312 tokens would take 1.5 times as long.
 
-Calculating for a kv cache token is exactly 1/6th of the compute of passing the token through the model. In general, these forwards passes (what we experience in getting logits, embeddings and training) are very cheap because of the parallelism that is possible as opposed to sampling where we're forced to read through all the weights for each token and do the autoregression.
+The intersection of the below diagram is at 208, though in reality the memory line does have a slight slope due to memory cost of intermediate calculations (discussed in the last section).
 
-This doesn't mean that 1/6th of the time is saved! Let's assume we are flops bound. Then at each sample step, we save 2⋅2⋅ntokens⋅nlayers⋅dmodel2÷312e12 flops while the decoding steps costs 2⋅12⋅nlayers⋅dmodel²÷312e12. Thus at each step we save 1/6 of the flops time multiplied by the number of tokens in our sequence (big!) — which increases as we sample tokens. It is the case that without a kv cache, sampling would be quadratic in time complexity as we increase the number of tokens.
+![](Pasted%20image%2020261023054258.jpg)
 
-This is not the whole story (given overheads and [tradeoffs](https://twitter.com/pommedeterre33/status/1491314217370398725?s=21) associated with storing this cache). If we're serving small batches we may be memory bandwidth bound rather than flops, in which case we won't even want to use the past cache and will instead happily do recomputations, spending the flops (we'll already be paying the memory cost to do our sampling).
+> > CORE IDEA: **loading weights from memory takes a fixed time, but math time grows with the number of tokens**
+
+- **Memory** line flat because we read all layers once 2·2·n_layers·d_model² *bytes*
+- **Compute** costs  2·2·n_layers·d_model² *flops* per token, so $n$ tokens cost $n$x
+
+```text
+CLASSIC RESULTS
+Parameter count per layer: 
+- Attention -> W_q, W_k, W_v, W_o (4 · d²)
+- MLP -> W_up and W_down (2 · 4d² = 8d²) since W_up(d*4d) and W_down(4d*d)
+  Total 12d²
+  
+  
+KV for one token costs 2·2·n_layers·d² flops
+A full forward costs 2·12·n_layers·d² flops
+```
+
+For a 52B model full forwards pass
+
+$\text{memory time}_{\text{forward pass}} = 12d²⋅n_{\text{layers}}⋅2÷1.5e12$ ≈*69* milliseconds *for up to 208 tokens* 
+
+- (four GPUs in parallel -> ~17 milliseconds, more in following sections) 
+- If 416 (double) tokens in the context ->  twice as long *(compute has become bottleneck)*
+- If 312 tokens -> 1.5 times as long *(compute has become bottleneck)*
+
+Calculating for a *kv cache* token (2·2·n_layers·d_model²) is exactly 1/6th of the compute of passing the token *through the model* (12·2·n_layers·d_model²)
+
+In general
+- These forward passes (prefix) are cheap because read weights once then do math on all input tokens at once - GPU is busy
+- Sampling (autoregression) is slower because we (re-)read all the weights for each token
+
+> Computing $k$, $v$ is 1/6th of a token’s full forward compute. But KV cache saves *MORE THAN* 1/6th of the time! 
+> 
+> Because saving repeats for every past token at every step. Explained below
+
+Say you have 1000 tokens (*now compute bound*) and want the 1001st. Let u = 2 · n_layers · d_model² ÷ 312e12 (a unit of time)
+
+- **With a cache**: $k$, $v$ for the 1000 old tokens are already stored. You process only the new token, which costs a full decode step: 12·u = 12u.
+- **Without a cache**: you must recompute $k$, $v$ for all 1000 old tokens: 1000 × 2·u = 2000u.
+- Saved ÷ step cost = 2000u ÷ 12u ≈ 167 steps' worth, which is n_tokens ÷ 6
+
+> *per token* the saving is 1/6, but you save it for *every token* in the sequence
+
+Thus **at each step we save 1/6 of the flops time multiplied by the number of tokens in our sequence (big!)** — which increases as we sample tokens. 
+
+It is the case that without a kv cache, sampling would be quadratic in time complexity as we increase the number of tokens
+
+> Without a cache, step t costs about t units, because you redo everything so far. Total over T steps ≈ 1 + 2 + ... + T ≈ T²/2, which is quadratic
+> 
+> With a cache each step costs a constant amount, so the total is linear
+
+
+This is not the whole story (given overheads and [tradeoffs](https://twitter.com/pommedeterre33/status/1491314217370398725?s=21) associated with storing this cache). If we're serving *small batches* we may be *memory bandwidth* bound rather than flops, in which case *we won't even want to use the past cache* and will instead happily do recomputations, spending the flops)
+
+> If memory bound (small batch), the GPU's math units are idle anyway. Re-reading a huge cache costs memory time, while recomputing k, v costs only spare flops. So skipping the cache can be a win there.
 
 ### capacity
 
