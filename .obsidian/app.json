@@ -16,7 +16,13 @@
     "editor:paste",
     "editor:indent-list",
     "editor:unindent-list",
-    "editor:toggle-numbered-list"
+    "editor:toggle-numbered-list",
+    "insert-template",
+    "editor:insert-callout",
+    "editor:insert-horizontal-rule",
+    "editor:insert-mathblock",
+    "editor:insert-codeblock",
+    "editor:attach-file"
   ],
   "readableLineLength": true,
   "livePreview": false,

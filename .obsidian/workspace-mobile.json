@@ -4,17 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "f221ecb3b87d2450",
+        "id": "cd0f82f5c5ff41cd",
         "type": "tabs",
         "children": [
           {
-            "id": "14f85ed70831eaf6",
+            "id": "a22846947ae53fda",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
                 "file": "Kipply_TransformerInferenceArithmetic/kipp-ly-p-transformer-inference-arithmetic.md",
-                "mode": "preview",
+                "mode": "source",
                 "source": true,
                 "backlinks": false
               },
@@ -174,14 +174,18 @@
       "obsidian-excalidraw-plugin:New drawing": true
     }
   },
-  "active": "14f85ed70831eaf6",
+  "active": "a22846947ae53fda",
   "lastOpenFiles": [
     "Kipply_TransformerInferenceArithmetic/Pasted image 20261023054258.jpg",
     "Kipply_TransformerInferenceArithmetic/Pasted image 20261022152930.png",
-    "2026-10-22.md",
+    "Kipply_TransformerInferenceArithmetic/Pasted image 20261025113308.jpg",
+    "Kipply_TransformerInferenceArithmetic/Pasted image 20261024072338.jpg",
     "Kipply_TransformerInferenceArithmetic/kipp-ly-p-transformer-inference-arithmetic.md",
-    "Source.md",
     "sources to read.md",
+    "Templates/Template - Right Arrow.md",
+    "Templates",
+    "2026-10-22.md",
+    "Source.md",
     "Kipply_TransformerInferenceArithmetic",
     "SumanDebnath_DistributedTraining/source.md",
     "SumanDebnath_LoraFirstPrinciples/source.md",
@@ -202,7 +206,6 @@
     "AlisaLiu_LLMs/source.txt",
     "source.txt",
     "Netflix_FoundationPersonalisation/source.txt",
-    "SumanDebnath_LoraFirstPrinciples/source.txt",
     "copilot/memory/Recent Conversations.md",
     "Pytorch_KnowledgeDistillation/docs-pytorch-org-tutorials-beginner-knowledge-distillation-t.md",
     "Excalidraw/debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning 2026-10-18 11.28.41.excalidraw.md",
@@ -214,14 +217,10 @@
     "Excalidraw/Drawing 2026-10-18 11.19.35.excalidraw.md",
     "SumanDebnath_LoraFirstPrinciples/Pasted image 20261017071108.png",
     "Pasted image 20261018101524.png",
-    "copilot/copilot-conversations/Go_over_every_math_notation_in_this_doc_and_inplace@20261018_100147.md",
     "SumanDebnath_LoraFirstPrinciples/Pasted image 20261017074945.png",
     "SumanDebnath_LoraFirstPrinciples/Pasted image 20261017064718.png",
     "Pasted image 20261017064628.png",
     "IMG_0022.jpeg",
-    "Netflix_GenRec/Pasted image 20261015170050.jpg",
-    "AleksaGordic_ModernTransformer/Pasted image 20261011174145.jpg",
-    "AleksaGordic_ModernTransformer/Pasted image 20261011161611.jpg",
     "Untitled.canvas",
     "Untitled 1.canvas"
   ]

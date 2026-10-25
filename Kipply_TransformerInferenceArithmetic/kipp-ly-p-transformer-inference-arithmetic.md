@@ -3,6 +3,71 @@
 
 > This article presents detailed few-principles reasoning about large language model inference performance, *with no experiments or difficult math*. The amount of understanding that can be acquired this way is really impressive and practical! OHO
 
+
+---
+---
+
+> [!NOTE] TLDR
+> I didn’t read the sections following model parallelism nicely. Felt outside my scope. Appreciate the author to still write the blog given their expertise! Jotting down equations that I should remember (used Claude to get these)
+> 
+> Bold ones is where I feel better
+
+
+
+1. **Parameters ≈ 12 · n_layers · d_model²**  
+Per layer: attention 4d² (Q, K, V, O) plus MLP 8d². For the 52B model: 12·64·8192² ≈ 51.5B.
+
+2. FLOPs per token ≈ 2P  
+Each parameter is used once, with one multiply and one add. The per-layer split is QKV 6d², W_o 2d², MLP 16d², which is 24d² in total.
+
+3. Decode step time (small batch, memory bound)  
+time ≈ 2P / (N · memory_bandwidth)  
+The weights have to be streamed through memory once per generated token. 52B on 4 A100s: 104e9 ÷ (4 × 1.5e12) ≈ 17 ms. Gopher 260B on 16 GPUs: ≈ 22 ms.
+
+4. Large batch B (compute bound)  
+time ≈ 2P·B / (N · peak_flops)  
+Weight reads are shared across the batch, so memory time doesn't grow with B but compute time does.
+
+5. **The crossover batch size is about 208**  
+It's peak_flops ÷ bandwidth (312e12 ÷ 1.5e12), independent of model size. **Below it you're memory bound, above it compute bound.** This is the roofline model, and it explains why batching increases throughput almost for free, and why a larger batch past the crossover doesn't make anything faster.
+
+6. Prefill vs decode  
+Prefill processes the whole prompt in parallel, so it's compute bound. Decode is one token at a time, so it's memory bound. Prefill time ≈ decode time × (prompt_tokens ÷ 208).
+
+7. KV cache sizing  
+**bytes per token = 2·2·n_layers·d_model** (about 2 MB for 52B) <br>
+max tokens = (GPU memory − 2P) ÷ bytes per token  
+The cache is why serving at large batch is capacity limited.
+
+8. Communication limits scaling  
+Tensor parallel does 4 syncs per layer. Latency cost is about 4 · n_layers · 8µs. Adding GPUs divides compute but not comms, so eventually comms dominates. To stay compute bound you need roughly d_model ≥ 1024 per chip (312e12 flops ÷ 300 GB/s ≈ 1040 flops per byte of comms).
+
+9. Pipeline vs tensor parallel  
+**Pipeline parallelism has less comms but leaves all but one GPU idle for a single request.** Tensor parallelism splits every layer, which is why it's the default for low-latency inference.
+
+10. Small ops matter less as models grow  
+Softmax, layernorm and element-wise ops are memory bound and scale with d, while matmuls scale with d². They took 43% of the time at d_model = 1024 but only about 5% at 8192. Kernel fusion (reading memory once) is how those are cut down.
+
+11. Theory is a lower bound  
+The blog's estimates hit 62–76% of real measured speed. GPUs reach about 90% of peak bandwidth and often only 50–70% of peak flops on realistic matmul sizes.
+
+Interview soundbites
+
+- "Decoding is memory bound, so latency is about weight bytes ÷ bandwidth."
+- "Batching is the main lever for throughput because it amortizes weight reads."
+	- A decode step costs the same memory time (loading all the weights) whether it serves 1 sequence or 200
+- "KV cache trades memory for compute, but at tiny batches recomputing can be cheaper."
+
+
+---
+---
+
+Main blog contents from below
+
+---
+---
+
+
 ### kv cache
 
 > GPT-2 implementation called kv cache `past`
@@ -151,39 +216,63 @@ For four GPUs (4 • 40 GB = 160 GB), we'd get (160-104) / 0.002 ≈ 23000 token
 
 ### model parallelism
 
-I'm not going to build up full understanding of model parallelism and all the implementation details, because [many](https://huggingface.co/docs/transformers/parallelism) [have](https://arxiv.org/pdf/1909.08053.pdf) [done](https://timdettmers.com/2014/11/09/model-parallelism-deep-learning/) [so](https://www.deepspeed.ai/tutorials/megatron/). But we will build out the parts of the understanding that are useful to figure to make performance decisions and calculate communication costs!
+Full understanding of model parallelism - [many](https://huggingface.co/docs/transformers/parallelism) [have](https://arxiv.org/pdf/1909.08053.pdf) [done](https://timdettmers.com/2014/11/09/model-parallelism-deep-learning/) [so](https://www.deepspeed.ai/tutorials/megatron/)
 
-The outcome of model parallelism, is that the cost of passing all the weights through through memory and the flops are all divided over the degree (number of accelerators we use).
+> The outcome of model parallelism → cost of passing all the weights through through memory and the flops are all divided over the degree (number of accelerators we use).
 
-We will assume tensor parallel (model parallel) where we will split down the middle of the model. Each accelerator will execute as much as it can with its shards of the weights and will communicate whenever synchronisation is required. A more naive way is pipeline parallel, where each GPU will hold onto a fraction of the layers. This does successfully even out the weight loading cost, but has the obvious silly that all but one GPU will be idling! In training you could pipeline through it (as the first batch moves onto the next GPU, start on a new batch on the first GPU) but it doesn't work out for a single sample request (though you could still do it for multiple requests). Pipeline also doesn't exhaust the memory bandwidth, which is actually ok if you're flops bound anyway. The only place where pipeline parallel does better is communications. A pipeline parallel model would communicate dmodel per accelerator, while a model parallel does N⋅dmodel per layer where N is the number of accelerators.
 
-Here we introduce the last constant for our [A100 GPUs](https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/a100-80gb-datasheet-update-nvidia-us-1521051-r2-web.pdf) which is a communication bandwith of 300GB/s. The doc marks it as 600GB/s because Nvidia is adding up 300GB/s into each chip and 300GB/s out simultaneously rather than using a bidirectional number (which will be more intuitive for our calculations).
+We will assume tensor parallel (model parallel) where we will split down the middle of the model. Each accelerator will execute as much as it can with its shards of the weights and will communicate whenever synchronisation is required. 
 
-[![mp.png](https://substackcdn.com/image/fetch/$s_!4EDm!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F044d4b50-4276-4700-8006-4c7bd6a11a18_4038x2476.png)](https://substackcdn.com/image/fetch/$s_!4EDm!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F044d4b50-4276-4700-8006-4c7bd6a11a18_4038x2476.png)
+>  pipeline parallel - each GPU will load a fraction of the layers - evens out the weight loading cost - but all but one GPU will be idling! In training we can starts new batch on the first gpu when the previous batch goes to the next gpu - but it doesn't work out for a single sample request
+>  
+>  Pipeline also doesn't exhaust the memory bandwidth, which is actually ok if you're flops bound anyway
+>  
+>  The only place where pipeline parallel does better is communications. A pipeline parallel model would communicate `d_model` per accelerator, while a model parallel does `N⋅d_model`per layer where N is the number of accelerators.
 
-In this diagram, we start by following the yellow brick road where we insert our token embeddings into the bottom of the model. The purple boxes outline how our weights would be split across the accelerators, and we work with an extremely tiny model so we can draw everything to scale. A general idea is that if we have two matrices X and Y we can shard both of them and multiply the shards. This doesn't actually complete the matmul of X⋅Y, and an easy way to tell (other than our ability to multiply matrices) is that if we concatenated the result of multiplying the shards, we get too big of a matrix. Instead, we would want to communicate, compute a shard sum, communicate that sum back out and then concatenate for the output of X⋅Y.
+[A100 GPUs](https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/a100-80gb-datasheet-update-nvidia-us-1521051-r2-web.pdf) → communication bandwith of 300GB/s
+
+> The doc marks it as 600GB/s because Nvidia is adding up 300GB/s into each chip and 300GB/s out simultaneously rather than using a bidirectional number (which will be more intuitive for our calculations).
+
+![](Pasted%20image%2020261025113308.jpg)
+
+- start token embeddings (top right)
+-  purple boxes outline how our weights would be split across the accelerators
+
+
+> [!NOTE] General Idea
+>   two matrices X and Y → shard both → multiply the shards
+>   
+>   It doesn't complete the matmul of X⋅Y, but and an easy way to tell (other than to multiply) → if we concat the result of multiplying the shards, we get too *big* of a matrix
+>   
+>  Instead, we want to compute a shard sum → communicate that sum back out → concatenate for the output of X⋅Y
 
 For attention the parallelism is intuitive from the fact that we have multiple heads. We go through most of the attention layer without communication because our attention heads are concatenated to multiply by Wo. After we multiply by v, we multiply the result by our shard of Wo to get a shard of os∈Rᵈ×ʰ/N. Then each accelerator will communicate its own shard to all the others, and all the others will communicate their shards back. This is (N−1)dmodel/N of comms cost. Each accelerator will do an even share of the addition to get the output projection, then do the same communication they did last time and the individual hosts will do the concatenation (approximately instant).
 
 The MLP layer is by nature very similar! Just like we have Wo to project our multi-headed attention results back down to a vector of length dmodel, we have W1∈R⁴ˣᵈ and W2∈Rᵈˣ⁴ to make a dimension 4 times larger and then project it back down. The same two communications are done at the end of the MLP.
 
-Ultimately we do 4⋅(N−1)dmodel/N bytes of communication. The kv cache is split across heads by GPU.
+Ultimately we do 4⋅(N−1)dmodel/N bytes of communication. The kv cache is split across heads by GPU
+
+> Each GPU only does k and v for its own heads
+
+> Didn’t understand fully nicely, the notations are a bit loose too
+
 
 ### latency calculations
 
-We've discussed the capacity fairly thoroughly, mapped out comms in the model parallelism section and discussed general compute steps. Now we'll build it into equations that estimate latency!
 
 ![batchsize.png](https://substackcdn.com/image/fetch/$s_!tRWE!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fc0422fb6-76f3-4230-8693-51ada0737679_2321x489.png)
 
-Our latency calculations are mostly about the flops vs memory boundedness. If we have a small number of multiplies to do per parameter, then maybe we'll be throttled by memory bandwidth. Flops are increased by both batch size and number of parameters, while memory is only increased by number of parameters.
+- Flops are increased by both batch size and number of parameters
+- memory is only increased by number of parameters
 
-For comms, it's not about boundedness, but rather about adding a latency term and a throughput term (the 300GB/s). Something tricky about the latency side of this figure is that it's not reported, so the best I can do is guess "approximately small", which is approximately 8 microseconds per message sent as found in this [Citadel paper](https://arxiv.org/pdf/1804.06826.pdf) but it's for V100 NVLink.
+Equations for a small batch (say 1, so we can drop the batch factor) would be; 
 
-Because of the compute factors, to calculate the latency of a single token decoding step we'd have two formulas - one for memory bandwidth bound (small batch) and another for flops bound (large batch). For large batch, we'll drop the latency factor for communications.
+compute $= \dfrac{2⋅P⋅b}{N⋅A_{bm}b s^{−1}}$  <br>
+comms $= 4⋅n_{\text{layers}}⋅8μs$
 
-Equations for a small batch (say 1, so we can drop the batch factor) would be; (where N is the number of accelerators and P is the number of parameters and b is "byte" as a unit)
-
-compute=2⋅P⋅bN⋅Abmbs−1comms=4⋅nlayers⋅8μs
+- N is the number of accelerators 
+- P is the number of parameters 
+- b is "byte" as a unit
 
 There is 2⋅P because we need to pass all the parameters through the memory, and each parameter is two bytes. A\_bm is the accelerator memory bandwidth, and this cost is split across accelerators. For comms, we have 4⋅n\_layers communications per layer, and the latency per each request. Comms will usually come out to be relatively small so for the compute bound case we won't need to pay attention to it anyway. There's also a throughput cost in comms which also rounds away.
 
