@@ -12,7 +12,7 @@
 	- Backprop
 - Anyscale inference
 - NVIDIA inference optimisation
-- Kipply Transformer Inference Arithmetic 
+- Kipply Transformer Inference Arithmetic (…)
 - PyTorch
 	- GPT Fast
 	- Segment Anything Fast
