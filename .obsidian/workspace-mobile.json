@@ -4,22 +4,22 @@
     "type": "split",
     "children": [
       {
-        "id": "cd0f82f5c5ff41cd",
+        "id": "47347e28a6c36ba2",
         "type": "tabs",
         "children": [
           {
-            "id": "a22846947ae53fda",
+            "id": "9be4cb2f96dcc4e7",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "sources to read.md",
+                "file": "Zomato_Search/www-zomato-com-blog-search-that-reads-intent-not-just-string.md",
                 "mode": "source",
                 "source": true,
                 "backlinks": false
               },
               "icon": "lucide-file",
-              "title": "sources to read"
+              "title": "www-zomato-com-blog-search-that-reads-intent-not-just-string"
             }
           }
         ]
@@ -151,7 +151,7 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "sources to read.md",
+            "file": "Zomato_Search/www-zomato-com-blog-search-that-reads-intent-not-just-string.md",
             "followCursor": false,
             "showSearch": false,
             "searchQuery": ""
@@ -174,18 +174,23 @@
       "obsidian-excalidraw-plugin:New drawing": true
     }
   },
-  "active": "a22846947ae53fda",
+  "active": "9be4cb2f96dcc4e7",
   "lastOpenFiles": [
+    "Zomato_Search/Safari - 27 Oct 2026 at 5_40 AM_page-0001.jpg",
+    "Untitled.md",
+    "Templates/Template - Break Line.md",
+    "Templates/Template - Right Arrow.md",
+    "Zomato_Search/www-zomato-com-blog-search-that-reads-intent-not-just-string.md",
+    "Zomato_Search/source.md",
+    "Kipply_TransformerInferenceArithmetic/source.md",
+    "sources to read.md",
     "Kipply_TransformerInferenceArithmetic/kipp-ly-p-transformer-inference-arithmetic.md",
     "Kipply_TransformerInferenceArithmetic/Pasted image 20261023054258.jpg",
     "Kipply_TransformerInferenceArithmetic/Pasted image 20261022152930.png",
     "Kipply_TransformerInferenceArithmetic/Pasted image 20261025113308.jpg",
     "Kipply_TransformerInferenceArithmetic/Pasted image 20261024072338.jpg",
-    "sources to read.md",
-    "Templates/Template - Right Arrow.md",
     "Templates",
     "2026-10-22.md",
-    "Source.md",
     "Kipply_TransformerInferenceArithmetic",
     "SumanDebnath_DistributedTraining/source.md",
     "SumanDebnath_LoraFirstPrinciples/source.md",
@@ -211,10 +216,6 @@
     "Excalidraw/debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning 2026-10-18 11.28.41.excalidraw.md",
     "SumanDebnath_LoraFirstPrinciples/debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning.md",
     "Excalidraw/Drawing 2026-10-18 11.27.36.excalidraw.md",
-    "Excalidraw/Drawing 2026-10-18 11.26.15.excalidraw.md",
-    "Excalidraw/debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning 2026-10-18 11.23.23.excalidraw.md",
-    "Excalidraw/debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning 2026-10-18 11.22.39.excalidraw.md",
-    "Excalidraw/Drawing 2026-10-18 11.19.35.excalidraw.md",
     "SumanDebnath_LoraFirstPrinciples/Pasted image 20261017071108.png",
     "Pasted image 20261018101524.png",
     "SumanDebnath_LoraFirstPrinciples/Pasted image 20261017074945.png",
