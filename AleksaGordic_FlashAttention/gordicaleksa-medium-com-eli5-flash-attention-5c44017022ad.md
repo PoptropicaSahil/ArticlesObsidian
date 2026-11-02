@@ -148,65 +148,67 @@ Ok, we now have all of the ingredients we need in order to understand the forwar
 
 > Note: the algo below assumes (a) batch size 1 (i.e. single sequence), (b) single attention head, (c) ignore dropout & masking for now
 
-![](https://miro.medium.com/v2/resize:fit:1000/1*OJBNIb3fz6JEuisrLfSW6g.png)
+![](Pasted%20image%2020261102163208.jpg)
 
-Notation remark: d — attention head dimension, B\_r ( **row** block size), B\_c ( **column** block size) — the rest of the notation was introduced before.
+Notation remark: d — attention head dimension, B\_r ( **row** **block** size), B\_c ( **column** **block** size) 
 
-Let’s now break it down step by step!
 
-S **tep 0:** HBM’s capacity is measured in GBs (e.g. RTX 3090 has 24 GBs of VRAM/HBM, A100 has 40–80 GB, etc.) so allocating **_Q_**, **_K_**, and **_V_** is not an issue.
+### **Step 0:** 
+HBM’s capacity is measured in GBs (e.g. A100 40–80 GB) → allocating **_Q_**, **_K_**, and **_V_** is not an issue
 
-**Step 1:** Let’s compute the row/column block sizes. Why _ceil(M/4d)_? Because query, key, and value vectors are d-dimensional, and, we also need to combine them into the output d-dimensional vector. So this size basically allows us to max out SRAM capacity with _q_, _k_, _v_, and _o_ vectors.
+### **Step 1:** 
+Row/column **block sizes** → $\text{ceil}(M/4d)$
 
-Toy example: assume M = 1000, d = 5. In this example, the block size is (1000/4\*5) = 50. So in this example, we would load blocks of 50 _q, k, v, o_ vectors at a time, to make sure we’re reducing the number of reads/writes between HBM/SRAM.
+Because _q_, _k_, _v_, _o_ are  d-dimensional vectors → $(M/4d)$ allows to max out SRAM capacity
 
-Worth keeping this image in your mind (it will make more sense soon):
+Toy example: assume M = 1000, d = 5 → block size (1000/4\*5) = 50 → **load blocks of 50 _q, k, v, o_ vectors at a time**
 
-Press enter or click to view image in full size
+> to make sure we’re reducing the number of reads/writes between HBM/SRAM
+
+*Worth keeping this image in your mind (it will make more sense soon)*
 
 ![](https://miro.medium.com/v2/resize:fit:700/1*0OV7ituGlfv9EaIfmtqbmg.png)
 
-As for _B\_r_, I’m not exactly sure why do they perform a min op with _d_? If anyone knows feel free to leave a comment!
+> (Aleksa’s note) As for _B\_r_, I’m not exactly sure why do they perform a min op with _d_? 
 
-**Step 2:**
-
-Press enter or click to view image in full size
+### **Step 2:**
 
 ![](https://miro.medium.com/v2/resize:fit:1000/1*zkv3FSgGyZ7-iG_Q4k8GxQ.png)
 
-We initialize the output matrix **_O_** with all 0s. It’ll act as an accumulator hence that init value. Similarly for **_l_**(remember: its purpose is to hold the cumulative denominator for the softmax - the sum of exp scores). **_m_**(that holds row-wise maximum scores)is initialized with _-inf_ because we’ll be doing a max operator over it so whatever the first block’s max is — it’ll certainly be larger than _-inf —_ hence this is the natural init value.
+Initialize 
+- output matrix **_O_** with all 0s (acts as an accumulator)
+- Similarly  **_l_** (holds the cumulative denominator for the softmax - the sum of exp scores)
+- **_m_** (holds row-wise maximum scores) is initialized with _-inf_ because we’ll be doing a max anyways
 
-**Step 3:**
-
-Press enter or click to view image in full size
+### **Step 3:**
 
 ![](https://miro.medium.com/v2/resize:fit:1000/1*VG8bCa1mhiXx6D32wvk7Zw.png)
 
-We split the **_Q, K,_** and **_V_** into blocks using the block sizes from Step 1. See also the diagram above.
+Split **_Q, K,_** and **_V_** into blocks using the block sizes from **Step 1**
+> See also the diagram above
 
-**Step 4:**
-
-Press enter or click to view image in full size
+### **Step 4:**
 
 ![](https://miro.medium.com/v2/resize:fit:1000/1*wTgKZnd1nFJ1SkRpZ9nj8Q.png)
 
-Similarly split **_O, l, m_** into blocks (same block size as **_Q_**).
+Similarly split **_O, l, m_** into blocks (same block size as **_Q_**)
 
-**Step 5:**
+### **Step 5:**
 
 ![](https://miro.medium.com/v2/resize:fit:493/1*e0_mx0OSzVNIOE-4ZIq-zw.png)
 
-Let’s start looping across the columns i.e. across key/value vectors ( **outer loop** in the diagram above).
+Let’s start looping across the columns i.e. across key/value vectors 
+> ( **outer loop** in the diagram above)
 
 **Step 6:**
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:700/1*PaxaJ90G6aHmKP-0RYVrtw.png)
 
 Let’s load the **_K\_j_** and **_V\_j_** blocks from HBM to SRAM. Remember because of the way we constructed the block sizes we still have 50% of the SRAM unoccupied at this point in time (dedicated to **Q** and **O**).
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:700/0*Ywl4arvMvN6HCFwZ.png)
 
@@ -230,7 +232,7 @@ Remember me for faster sign in
 
 **Step 8:**
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:1000/1*y0gyIcenDedgWkmr_s2Bug.png)
 
@@ -240,7 +242,7 @@ How do **_l\_i_** & **_m\_i_** fit into the SRAM (including all of the intermedi
 
 **Step 9:**
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:700/1*LMZEvals-Shf7giT8slQmw.png)
 
@@ -248,7 +250,7 @@ Compute the dot product between **_Q\_i_** ( _B\_r x d_) and **_K\_j_** transpos
 
 Toy example: assuming the outer loop index is _j_ (j=3), inner loop index is _i_ (i=2), _N_ is 25 and the block size is 5 this is what we just computed (assuming 1-based indexing):
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:700/0*m0pdO7LvXYrZ503F.png)
 
@@ -256,7 +258,7 @@ Basically the attention scores for tokens 6–10 with tokens 11–15 of our inpu
 
 **Step 10:**
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:1000/1*F4LNBA_VsPhqNk4VkmNrOw.png)
 
@@ -273,13 +275,13 @@ We get **_P~\_i\_j_** by applying elementwise ops:
 
 **Step 11:**
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:1000/1*jFlLbR8DS5Ei5NpwgIIvWA.png)
 
 Compute **_m\_new\_i_** and **_l\_new\_i_**. Again fairly simple, let’s reuse the diagram from above:
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:700/0*yHc4h9UJ3AiHQ7fn.png)
 
@@ -287,13 +289,13 @@ Press enter or click to view image in full size
 
 **Step 12 (the most important step):**
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:1000/1*KNZwy8pvXo-AwcogXBETng.png)
 
 This is the hardest part of the algorithm but still not that complicated, esp. once you internalize the _formulas 1 & 2_ for partial softmax computation.
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:700/0*2DlPHK6iEltHdQxW.png)
 
@@ -303,7 +305,7 @@ It basically just allows us to do row-wise scalar multiplication in a matrix for
 
 Next up notice the similarity between _step 12_ and _formula 1_ (pasting it here again for convenience):
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:1000/1*XlUH2kUNmtZzCXMfQ9Q65A.png)
 
@@ -319,13 +321,13 @@ The easiest way to convince yourself this makes sense is to just simulate a coup
 
 It literally takes 5 minutes. Here is my step-by-step analysis (hope it helps!):
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:700/1*RuLi2fMrkxeCkPo6_bttvw.png)
 
 As you can see the main point is that these e terms outside cancel out with e terms inside of P/O matrices and we always end up having the latest m\_new\_1 estimate!
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:700/1*a4Fu3h_eL9LMLIkLgXW-1g.png)
 
@@ -335,7 +337,7 @@ Recall: this is just a current estimate of the final **_O\_i_**. Only after we i
 
 **Step 13:**
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:700/1*fMJPUiQQ-JhGpZFFOFTNWw.png)
 
@@ -365,7 +367,7 @@ Now let’s briefly touch on the complexity.
 
 Here is an excerpt from the paper:
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:1000/1*blllQ-SaDeNQoUOilvUhTg.png)
 
@@ -415,7 +417,7 @@ The same thing that gives flash attention its power is the root cause of its iss
 
 As a consequence, the original flash attention supported only a subset of GPUs. For example, V100 is not supported. See this issue on their GitHub:
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:1000/1*WAgDijytJXfwz-_u1geEIg.png)
 
@@ -425,7 +427,7 @@ Press enter or click to view image in full size
 
 To make this issue a bit more visceral, here is the actual CUDA code from the original implementation:
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:700/1*MscGQcD2J3L9KxiZQA6TnA.png)
 
@@ -448,7 +450,7 @@ There is a couple of possible explanations that I can see:
 - FlashAttention is, as far as I can tell, easier/only possible to implement on the latest GPUs (hence V100 is not supported in the original codebase). Couple this with the phenomenon that oftentimes “outsiders” are those who see the problems with beginner’s eyes and tackle issues from the first principles and we get to the possible explanation.
 - Ultimately I really like [Nat Friedman’s](https://nat.org/) perspective on the efficiency of the world:
 
-Press enter or click to view image in full size
+
 
 ![](https://miro.medium.com/v2/resize:fit:700/1*V5FdAlPuQgFFjCxRjcLVjg.png)
 
