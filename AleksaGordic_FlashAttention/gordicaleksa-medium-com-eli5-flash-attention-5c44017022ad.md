@@ -167,7 +167,7 @@ Toy example: assume M = 1000, d = 5 → block size (1000/4\*5) = 50 → **load b
 
 *Worth keeping this image in your mind (it will make more sense soon)*
 
-![](https://miro.medium.com/v2/resize:fit:700/1*0OV7ituGlfv9EaIfmtqbmg.png)
+![](Pasted%20image%2020261103065249.jpg)
 
 > (Aleksa’s note) As for _B\_r_, I’m not exactly sure why do they perform a min op with _d_? 
 
@@ -202,47 +202,43 @@ Let’s start looping across the columns i.e. across key/value vectors
 
 **Step 6:**
 
-
-
 ![](https://miro.medium.com/v2/resize:fit:700/1*PaxaJ90G6aHmKP-0RYVrtw.png)
 
-Let’s load the **_K\_j_** and **_V\_j_** blocks from HBM to SRAM. Remember because of the way we constructed the block sizes we still have 50% of the SRAM unoccupied at this point in time (dedicated to **Q** and **O**).
+Load the **_K\_j_** and **_V\_j_** blocks from HBM to SRAM
 
 
+> [!NOTE] Nice
+>  Because of the way we constructed the block sizes we still have 50% of the SRAM unoccupied at this point in time (dedicated to **Q** and **O**) (!!)
 
 ![](https://miro.medium.com/v2/resize:fit:700/0*Ywl4arvMvN6HCFwZ.png)
 
-Roughly & abstractly. The GPU memory layout will obviously be different.
+*Roughly & abstractly. The GPU memory layout will obviously be different.*
 
 **Step 7:**
 
 ![](https://miro.medium.com/v2/resize:fit:520/1*mTCUNX239DWlG-i5LGll9w.png)
 
-Start the **inner loop** across the rows i.e. across query vectors (again, see the diagram).
+Start the **inner loop** across the rows i.e. across query vectors 
+> again, see the diagram
 
-## Get Aleksa Gordić’s stories in your inbox
 
-Join Medium for free to get updates from this writer.
-
-Subscribe
-
-Subscribe
-
-Remember me for faster sign in
+> [!NOTE] thoughts
+> outer `for` loop is over key and value vectors (columns) → sizes $B_c × d$, <br> inner `for` loop is over query vector (row) → sizes $B_r × d$
+> 
+> **NOT INTUITIVE YET** given attention scores are `sm(q • kT) v`
 
 **Step 8:**
 
-
-
 ![](https://miro.medium.com/v2/resize:fit:1000/1*y0gyIcenDedgWkmr_s2Bug.png)
 
-Load **_Q\_i_** ( _B\_r x d_) and **_O\_i (_** _B\_r x d_ **_)_** blocks, as well as **_l\_i_** (_B\_r_) & **_m\_i (_**_B\_r_**_)_**into SRAM.
+Load **_Q\_i_** ( _B\_r × d_) and **_O\_i (_** _B\_r × d_ **_)_** blocks, as well as **_l\_i_** (_B\_r_) & **_m\_i (_**_B\_r_**_)_**into SRAM
+
+> Okay it is reasonable assume we start with computing softmax → hence need $l$, $m$
+> Why then K isn’t loaded? It is part of the inner block yes but still
 
 How do **_l\_i_** & **_m\_i_** fit into the SRAM (including all of the intermediate variables) when we computed block size in such a way that we only have enough space for **_K\_j_**, **_V\_j_**, **_Q\_i_** & **_O\_i_**? I think the answer is: registers (see [this CUDA video series](https://www.youtube.com/watch?v=4APkMJdiudU&list=PLC6u37oFvF40BAm7gwVP7uDdzmW83yHPe) to get some intuition on GPU memory hierarchy). But I might be wrong, someone who’s actually implemented this in CUDA please correct me. 🙏 I’m sure I’m missing out on important implementation details by just analyzing the pseudo-algorithm.
 
 **Step 9:**
-
-
 
 ![](https://miro.medium.com/v2/resize:fit:700/1*LMZEvals-Shf7giT8slQmw.png)
 
@@ -440,114 +436,3 @@ This is where projects like [OpenAI’s Triton](https://openai.com/research/trit
 Triton has recently been integrated with PyTorch 2.0 so definitely keep an eye out for this project! Shout out to [Philippe Tillet](https://github.com/ptillet/) who started building Triton during his PhD and later became a part of OpenAI.
 
 Finally, it’s worth mentioning that for certain use cases, you might still prefer other methods. E.g. for sequence lengths beyond 1K, some approximate attention methods (e.g., Linformer) start to become faster. But ultimately, to the best of my understanding, the block-sparse implementation of the flash attention outperforms all other methods.
-
-## Outro
-
-You might ask yourself: why didn’t anyone invent FlashAttention before? Given how crucial this piece of computation is to all modern ML workloads. Given how many engineering hours are spent, across different tech organizations, trying to squeeze the last ounce of performance out of these systems. Why did a [Stanford student](https://tridao.me/) (shout out to Tri Dao for the amazing work!) come up with this and not e.g. NVIDIA engineers?
-
-There is a couple of possible explanations that I can see:
-
-- FlashAttention is, as far as I can tell, easier/only possible to implement on the latest GPUs (hence V100 is not supported in the original codebase). Couple this with the phenomenon that oftentimes “outsiders” are those who see the problems with beginner’s eyes and tackle issues from the first principles and we get to the possible explanation.
-- Ultimately I really like [Nat Friedman’s](https://nat.org/) perspective on the efficiency of the world:
-
-
-
-![](https://miro.medium.com/v2/resize:fit:700/1*V5FdAlPuQgFFjCxRjcLVjg.png)
-
-[https://nat.org/](https://nat.org/)
-
-Finally, let me wrap up with some food for thought:
-
-Given how much it costs to train these models (see [this blog](https://www.mosaicml.com/blog/gpt-3-quality-for-500k) from MosaicML for the most optimistic estimates) being able to shave off 15% from BERT-large training, or speed up GPT training 2/3x has such a tremendous economic impact when considering all of the current, and future, model trainings at a global scale.
-
-Imagine if we lived in a world where **_Y_** (value captured) was actually correlated with **_X_** (value produced). The author would be a trillionaire over the next few years. :)
-
-Alas, researchers rarely capture that value, for better or worse (imagine if Pythagoras patented his theorem :P). Yet people who oftentimes just repackage stuff are those who capture most of the value. Going on a complete tangent here, until next time! ;)
-
-### Further resources
-
-- Flashier Attention blog — [https://www.adept.ai/blog/flashier-attention](https://www.adept.ai/blog/flashier-attention) -\> They show how to further optimize flash attention for highly distributed settings where batch sizes become super small (pipeline parallelism) and sequence length super long.
-- Tri Dao’s talk: [FlashAttention — Tri Dao \| Stanford MLSys #67](https://www.youtube.com/watch?v=gMOAud7hZg4&ab_channel=StanfordMLSysSeminars)
-- Tri Dao’s talk: [MedAI #54: FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness \| Tri Dao](https://www.youtube.com/watch?v=FThvfkXWqtE&ab_channel=StanfordMedAI)
-- Paper: [FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness](https://arxiv.org/abs/2205.14135)
-
-### Acknowledgments
-
-Thanks to [Tri Dao](https://twitter.com/tri_dao), [Horace He](https://twitter.com/cHHillee), and [Amrit Sahu](https://twitter.com/AmritSa51993336) for reading earlier drafts of this blog post and providing feedback!
-
-### BibTeX Citation
-
-```
-@article{gordiceli5flashattention,
-  author={Aleksa Gordic},
-  title={ELI5: FlashAttention},
-  year={2023},
-  url={https://gordicaleksa.medium.com/eli5-flash-attention-5c44017022ad},
-}
-```
-
-### Connect with me
-
-Last but not least feel free to drop me a message or:
-
-1. Connect and reach out on [**LinkedIn**](https://www.linkedin.com/in/aleksagordic/) and/or [**Twitter**](https://twitter.com/gordic_aleksa)
-2. Subscribe to my [**YouTube channel**](https://www.youtube.com/c/TheAiEpiphany) for more ML
-3. Follow me on [**Medium**](https://medium.com/@gordicaleksa) and [**GitHub**](https://github.com/gordicaleksa)
-4. Subscribe to my [**monthly AI newsletter**](https://aiepiphany.substack.com/) and join the [**Discord**](https://discord.gg/peBrCpheKE) community!
-5. 📄 [**Website**](https://gordicaleksa.com/)
-
-And if you find the content I create useful [**consider becoming a Patreon!**](https://www.patreon.com/theaiepiphany)
-
-Much love ❤️
-
-[Machine Learning](https://medium.com/tag/machine-learning?source=post_page---footer_tags--5c44017022ad-----------------------------------------)
-
-[Large Language Models](https://medium.com/tag/large-language-models?source=post_page---footer_tags--5c44017022ad-----------------------------------------)
-
-[Attention Is All You Need](https://medium.com/tag/attention-is-all-you-need?source=post_page---footer_tags--5c44017022ad-----------------------------------------)
-
-[Mlsys](https://medium.com/tag/mlsys?source=post_page---footer_tags--5c44017022ad-----------------------------------------)
-
-[![Aleksa Gordić](https://miro.medium.com/v2/resize:fill:96:96/1*q54RAGVbYTZtIBJfGC3goA.png)](https://gordicaleksa.medium.com/?source=post_page---post_author_info--5c44017022ad-----------------------------------------)
-
-[![Aleksa Gordić](https://miro.medium.com/v2/resize:fill:128:128/1*q54RAGVbYTZtIBJfGC3goA.png)](https://gordicaleksa.medium.com/?source=post_page---post_author_info--5c44017022ad-----------------------------------------)
-
-Follow
-
-[**Written by Aleksa Gordić**](https://gordicaleksa.medium.com/?source=post_page---post_author_info--5c44017022ad-----------------------------------------)
-
-[5K followers](https://gordicaleksa.medium.com/followers?source=post_page---post_author_info--5c44017022ad-----------------------------------------)
-
-· [4 following](https://gordicaleksa.medium.com/following?source=post_page---post_author_info--5c44017022ad-----------------------------------------)
-
-scaling LLMs. ex-DeepMind/Microsoft; [https://www.aleksagordic.com/](https://www.aleksagordic.com/)
-
-Follow
-
-[Help](https://help.medium.com/hc/en-us?source=post_page-----5c44017022ad-----------------------------------------)
-
-[Status](https://status.medium.com/?source=post_page-----5c44017022ad-----------------------------------------)
-
-[About](https://medium.com/about?autoplay=1&source=post_page-----5c44017022ad-----------------------------------------)
-
-[Careers](https://medium.com/jobs-at-medium/work-at-medium-959d1a85284e?source=post_page-----5c44017022ad-----------------------------------------)
-
-[Press](mailto:pressinquiries@medium.com)
-
-[Blog](https://blog.medium.com/?source=post_page-----5c44017022ad-----------------------------------------)
-
-[Store](https://medium.com/store)
-
-[Privacy](https://policy.medium.com/medium-privacy-policy-f03bf92035c9?source=post_page-----5c44017022ad-----------------------------------------)
-
-[Rules](https://policy.medium.com/medium-rules-30e5502c4eb4?source=post_page-----5c44017022ad-----------------------------------------)
-
-[Terms](https://policy.medium.com/medium-terms-of-service-9db0094a1e0f?source=post_page-----5c44017022ad-----------------------------------------)
-
-[Text to speech](https://speechify.com/medium?source=post_page-----5c44017022ad-----------------------------------------)
-
-reCAPTCHA
-
-Recaptcha requires verification.
-
-protected by **reCAPTCHA**

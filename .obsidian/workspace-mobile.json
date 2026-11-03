@@ -4,17 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "1ec5399710912177",
+        "id": "cade3d759b23b29f",
         "type": "tabs",
         "children": [
           {
-            "id": "d473d30df81ea2d5",
+            "id": "bc55cc234bb062cb",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
                 "file": "AleksaGordic_FlashAttention/gordicaleksa-medium-com-eli5-flash-attention-5c44017022ad.md",
-                "mode": "source",
+                "mode": "preview",
                 "source": true,
                 "backlinks": false
               },
@@ -174,16 +174,18 @@
       "obsidian-excalidraw-plugin:New drawing": true
     }
   },
-  "active": "d473d30df81ea2d5",
+  "active": "bc55cc234bb062cb",
   "lastOpenFiles": [
+    "Templates/Template - Break Line.md",
+    "Templates/Template - Multiplication.md",
+    "AleksaGordic_FlashAttention/gordicaleksa-medium-com-eli5-flash-attention-5c44017022ad.md",
+    "AleksaGordic_FlashAttention/Pasted image 20261103065249.jpg",
     "AleksaGordic_FlashAttention/Pasted image 20261102163208.jpg",
     "AleksaGordic_FlashAttention/source.md",
-    "AleksaGordic_FlashAttention/gordicaleksa-medium-com-eli5-flash-attention-5c44017022ad.md",
     "AleksaGordic_FlashAttention",
     "Zomato_Search/www-zomato-com-blog-search-that-reads-intent-not-just-string.md",
     "Zomato_Search/Safari - 27 Oct 2026 at 5_40 AM_page-0001.jpg",
     "Untitled.md",
-    "Templates/Template - Break Line.md",
     "Templates/Template - Right Arrow.md",
     "Zomato_Search/source.md",
     "Kipply_TransformerInferenceArithmetic/source.md",
@@ -220,8 +222,6 @@
     "SumanDebnath_LoraFirstPrinciples/Pasted image 20261017071108.png",
     "Pasted image 20261018101524.png",
     "SumanDebnath_LoraFirstPrinciples/Pasted image 20261017074945.png",
-    "SumanDebnath_LoraFirstPrinciples/Pasted image 20261017064718.png",
-    "Pasted image 20261017064628.png",
     "Untitled.canvas",
     "Untitled 1.canvas"
   ]
