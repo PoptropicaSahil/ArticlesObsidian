@@ -4,22 +4,32 @@
     "type": "split",
     "children": [
       {
-        "id": "cade3d759b23b29f",
+        "id": "8c487c2b908411eb",
         "type": "tabs",
         "children": [
           {
-            "id": "bc55cc234bb062cb",
+            "id": "752ace71f272e59b",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "AleksaGordic_FlashAttention/gordicaleksa-medium-com-eli5-flash-attention-5c44017022ad.md",
+                "file": "ArunRajkumar_PRML/Lec 1-11.md",
                 "mode": "preview",
                 "source": true,
                 "backlinks": false
               },
               "icon": "lucide-file",
-              "title": "gordicaleksa-medium-com-eli5-flash-attention-5c44017022ad"
+              "title": "Lec 1-11"
+            }
+          },
+          {
+            "id": "8dcb65b2a8bae25c",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "New tab"
             }
           }
         ]
@@ -151,9 +161,9 @@
         "state": {
           "type": "outline",
           "state": {
-            "file": "AleksaGordic_FlashAttention/gordicaleksa-medium-com-eli5-flash-attention-5c44017022ad.md",
+            "file": "ArunRajkumar_PRML/Lectures_1_11.md",
             "followCursor": false,
-            "showSearch": false,
+            "showSearch": true,
             "searchQuery": ""
           },
           "icon": "lucide-list",
@@ -174,27 +184,39 @@
       "obsidian-excalidraw-plugin:New drawing": true
     }
   },
-  "active": "bc55cc234bb062cb",
+  "active": "c003cc034ccb686b",
   "lastOpenFiles": [
+    "ArunRajkumar_PRML/Lec 1-11.md",
+    "ArunRajkumar_PRML/Drawing 2026-11-08 18.37.34.excalidraw.md",
+    "SumanDebnath_LoraFirstPrinciples/debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning.md",
+    "Excalidraw/debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning 2026-10-18 11.28.41.excalidraw.md",
+    "SumanDebnath_LoraFirstPrinciples/Quantisation Sub Blog.md",
+    "ArunRajkumar_PRML/Lectures_1_11.md",
+    "ArunRajkumar_PRML/Golden Algebra.md",
+    "Templates/Template - Right Arrow.md",
+    "Templates/Template - Implies.md",
+    "ArunRajkumar_PRML/Pasted image 20261108055349.png",
+    "ArunRajkumar_PRML/Pasted image 20261108061207.png",
+    "ArunRajkumar_PRML/Pasted image 20261108055538.png",
+    "ArunRajkumar_PRML/Pasted image 20261108061104.png",
+    "ArunRajkumar_PRML/Pasted image 20261108055700.png",
+    "ArunRajkumar_PRML/Pasted image 20261108060944.png",
+    "ArunRajkumar_PRML/Pasted image 20261108060358.png",
+    "ArunRajkumar_PRML/Pasted image 20261108060606.png",
+    "ArunRajkumar_PRML/Pasted image 20261108060700.png",
+    "Pasted image 20261108061207.png",
+    "Untitled.md",
+    "ArunRajkumar_PRML",
+    "AleksaGordic_FlashAttention/gordicaleksa-medium-com-eli5-flash-attention-5c44017022ad.md",
     "Templates/Template - Break Line.md",
     "Templates/Template - Multiplication.md",
-    "AleksaGordic_FlashAttention/gordicaleksa-medium-com-eli5-flash-attention-5c44017022ad.md",
-    "AleksaGordic_FlashAttention/Pasted image 20261103065249.jpg",
-    "AleksaGordic_FlashAttention/Pasted image 20261102163208.jpg",
     "AleksaGordic_FlashAttention/source.md",
     "AleksaGordic_FlashAttention",
     "Zomato_Search/www-zomato-com-blog-search-that-reads-intent-not-just-string.md",
-    "Zomato_Search/Safari - 27 Oct 2026 at 5_40 AM_page-0001.jpg",
-    "Untitled.md",
-    "Templates/Template - Right Arrow.md",
     "Zomato_Search/source.md",
     "Kipply_TransformerInferenceArithmetic/source.md",
     "sources to read.md",
     "Kipply_TransformerInferenceArithmetic/kipp-ly-p-transformer-inference-arithmetic.md",
-    "Kipply_TransformerInferenceArithmetic/Pasted image 20261023054258.jpg",
-    "Kipply_TransformerInferenceArithmetic/Pasted image 20261022152930.png",
-    "Kipply_TransformerInferenceArithmetic/Pasted image 20261025113308.jpg",
-    "Kipply_TransformerInferenceArithmetic/Pasted image 20261024072338.jpg",
     "Templates",
     "2026-10-22.md",
     "Kipply_TransformerInferenceArithmetic",
@@ -204,24 +226,12 @@
     "Netflix_FoundationPersonalisation/source.md",
     "Netflix_GenRec/source.md",
     "AlisaLiu_MathNotes/source.md",
-    "AlisaLiu_LLMs/source.md",
-    "AleksaGodric_vLLM/source.md",
-    "AleksaGordic_ModernTransformer/source.md",
-    "README.md",
-    "AleksaGodric_vLLM/www-aleksagordic-com-blog-vllm.md",
     "Pytorch_KnowledgeDistillation/source.txt",
     "AlisaLiu_MathNotes/source.txt",
     "SumanDebnath_DistributedTraining/source.txt",
     "Netflix_GenRec/source.txt",
     "AleksaGodric_vLLM/source.txt",
     "AlisaLiu_LLMs/source.txt",
-    "source.txt",
-    "copilot/memory/Recent Conversations.md",
-    "Pytorch_KnowledgeDistillation/docs-pytorch-org-tutorials-beginner-knowledge-distillation-t.md",
-    "Excalidraw/debnsuma-github-io-my-blog-posts-lora-serverless-fine-tuning 2026-10-18 11.28.41.excalidraw.md",
-    "SumanDebnath_LoraFirstPrinciples/Pasted image 20261017071108.png",
-    "Pasted image 20261018101524.png",
-    "SumanDebnath_LoraFirstPrinciples/Pasted image 20261017074945.png",
     "Untitled.canvas",
     "Untitled 1.canvas"
   ]

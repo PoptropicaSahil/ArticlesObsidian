@@ -22,7 +22,8 @@
     "editor:insert-horizontal-rule",
     "editor:insert-mathblock",
     "editor:insert-codeblock",
-    "editor:attach-file"
+    "editor:attach-file",
+    "editor:insert-link"
   ],
   "readableLineLength": true,
   "livePreview": false,
